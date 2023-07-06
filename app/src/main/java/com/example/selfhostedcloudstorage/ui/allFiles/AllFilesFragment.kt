@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.selfhostedcloudstorage.databinding.FragmentAllFilesBinding
 import com.example.selfhostedcloudstorage.mockData.MockService
@@ -35,10 +36,9 @@ class AllFilesFragment : Fragment() {
 
         // Set up RecyclerView and its adapter
         val recyclerView = binding.recyclerView
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         val fileAdapter = FileItemAdapter(fileList)
         recyclerView.adapter = fileAdapter
-        fileAdapter.notifyDataSetChanged()
 
         val textView: TextView = binding.textAllFiles
         allFilesViewModel.text.observe(viewLifecycleOwner) {
