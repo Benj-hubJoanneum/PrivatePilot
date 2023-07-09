@@ -18,9 +18,7 @@ class FileItemAdapter(
 ) : RecyclerView.Adapter<FileItemAdapter.FileViewHolder>() {
 
     private val selectedItems = mutableListOf<Int>()
-    private val longPressDuration = 2000L // 2 seconds
-    private var longPressHandler: Handler? = null
-    private var isLongPressed = false
+    private val longPressDuration = 1000L // 1 seconds
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -56,15 +54,15 @@ class FileItemAdapter(
         }
     }
 
-    inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnTouchListener {
+    inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener, View.OnTouchListener {
         private val descriptionTextView: TextView = itemView.findViewById(R.id.descriptionTextView)
         private val icon: ImageView = itemView.findViewById(R.id.imageView)
         private var longPressRunnable: Runnable? = null
         private var longPressHandler: Handler? = null
 
         init {
+            itemView.setOnClickListener(this)
             itemView.setOnTouchListener(this)
-            itemView.setOnClickListener { triggerItem(adapterPosition) }
         }
 
         override fun onTouch(view: View, event: MotionEvent): Boolean {
@@ -76,35 +74,20 @@ class FileItemAdapter(
                 MotionEvent.ACTION_UP -> {
                     cancelLongPressHandler()
                     itemView.setBackgroundColor(Color.TRANSPARENT)
-                    if (!isLongPressed) {
-                        triggerItem(adapterPosition)
-                    }
-                    isLongPressed = false
+                    onClick(view)
+
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     cancelLongPressHandler()
                     itemView.setBackgroundColor(Color.TRANSPARENT)
-                    isLongPressed = false
                 }
             }
             return true
         }
 
-        private fun triggerItem(position: Int) {
-            //execute on click
-            if (selectedItems.size < 1) {
-                val fileItem = fileList[position]
-                val message = "${fileItem.name} clicked"
-                Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
-            } else { //select multiple if it is activated
-                toggleSelection(position)
-            }
-        }
-
         private fun startLongPressHandler() {
             longPressHandler = Handler()
             longPressRunnable = Runnable {
-                isLongPressed = true
                 toggleSelection(adapterPosition)
             }
             longPressHandler?.postDelayed(longPressRunnable!!, longPressDuration)
@@ -123,6 +106,16 @@ class FileItemAdapter(
             notifyItemChanged(position)
         }
 
+        override fun onClick(v: View?) {
+            //execute on click
+            if (selectedItems.size < 1) {
+                val fileItem = fileList[adapterPosition]
+                val message = "${fileItem.name} clicked"
+                Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
+            } else { //select multiple if it is activated
+                toggleSelection(adapterPosition)
+            }
+        }
 
         fun bind(fileItem: FileItemViewModel) {
             descriptionTextView.text = fileItem.name
