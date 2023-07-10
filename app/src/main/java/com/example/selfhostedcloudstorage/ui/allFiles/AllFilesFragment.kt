@@ -8,16 +8,20 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FragmentAllFilesBinding
 import com.example.selfhostedcloudstorage.mockData.MockService
 import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemAdapter
 import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
+import com.example.selfhostedcloudstorage.mockData.fileItem.ItemSelectionListener
 
-class AllFilesFragment : Fragment() {
+class AllFilesFragment : Fragment(), ItemSelectionListener {
 
     private var _binding: FragmentAllFilesBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var fileAdapter: FileItemAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,20 +33,20 @@ class AllFilesFragment : Fragment() {
 
         val allFilesViewModel = ViewModelProvider(this).get(AllFilesViewModel::class.java)
 
-        // Get data source
-        val mockService = MockService()
-        val documentsDirectory = mockService.documentsDirectory
-        val fileList = documentsDirectory.files.map { FileItemViewModel(it) }.toMutableList()
+        // Initialize fileAdapter
+        fileAdapter = FileItemAdapter(emptyList(), this)
+        allFilesViewModel.fileList.observe(viewLifecycleOwner) { fileList ->
+            fileAdapter.updateList(fileList)
+        }
 
-        // Set up RecyclerView and its adapter
-        val recyclerView = binding.recyclerView
+        // Setup RecyclerView
+        val recyclerView: RecyclerView = binding.recyclerView
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        val fileAdapter = FileItemAdapter(fileList)
         recyclerView.adapter = fileAdapter
 
         val textView: TextView = binding.textAllFiles
-        allFilesViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        allFilesViewModel.text.observe(viewLifecycleOwner) { text ->
+            textView.text = text
         }
 
         return root
@@ -51,5 +55,10 @@ class AllFilesFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onItemsSelected(selectedCount: Int) {
+        val mainActivity = activity as? MainActivity
+        mainActivity?.onItemsSelected(selectedCount)
     }
 }
