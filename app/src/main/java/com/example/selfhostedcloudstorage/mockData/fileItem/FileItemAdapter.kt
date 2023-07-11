@@ -10,7 +10,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.mockData.model.FileType
 
@@ -51,8 +50,8 @@ class FileItemAdapter(
 
     private fun getItemImage(context: Context, type: FileType): Drawable {
         return when (type) {
-            FileType.JPG -> context.getDrawable(R.drawable.ic_image_24)!!
-            FileType.PDF -> context.getDrawable(R.drawable.ic_pdf_24)!!
+            FileType.JPG -> context.getDrawable(R.drawable.ic_image)!!
+            FileType.PDF -> context.getDrawable(R.drawable.ic_pdf)!!
             else -> context.getDrawable(R.drawable.ic_document)!!
         }
     }
