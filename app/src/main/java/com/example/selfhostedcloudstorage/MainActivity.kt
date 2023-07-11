@@ -12,9 +12,6 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
-import com.example.selfhostedcloudstorage.mockData.MockService
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemAdapter
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
 import com.example.selfhostedcloudstorage.mockData.fileItem.ItemSelectionListener
 
 class MainActivity : AppCompatActivity(), ItemSelectionListener {
@@ -58,14 +55,21 @@ class MainActivity : AppCompatActivity(), ItemSelectionListener {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val visibility = selectedCount > 0 // Determine visibility based on selected count
-        val buttonIds = listOf(
+        val buttonsForMultiselect = listOf(
             R.id.menu_open_with,
             R.id.menu_edit,
             R.id.menu_delete,
             R.id.menu_send
         )
-        buttonIds.forEach { buttonId ->
-            menu?.findItem(buttonId)?.isVisible = visibility
+        buttonsForMultiselect.forEach { button ->
+            menu?.findItem(button)?.isVisible = visibility
+        }
+
+        val buttonsForSingleSelection = listOf(
+            R.id.action_search
+        )
+        buttonsForSingleSelection.forEach { button ->
+            menu?.findItem(button)?.isVisible = !visibility
         }
         return super.onPrepareOptionsMenu(menu)
     }
