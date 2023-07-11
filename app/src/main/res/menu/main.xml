@@ -10,24 +10,29 @@
         android:id="@+id/action_search"
         android:orderInCategory="100"
         android:title="search"
+        android:icon="@drawable/ic_search"
         app:showAsAction="always" />
     <item
         android:id="@+id/menu_send"
         android:title="send"
+        android:icon="@drawable/ic_share"
         app:showAsAction="always" />
     <item
         android:id="@+id/menu_open_with"
         android:title="open_with"
+        android:icon="@drawable/ic_open"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/menu_edit"
         android:title="edit"
+        android:icon="@drawable/ic_edit"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_delete"
         android:title="delete"
+        android:icon="@drawable/ic_delete"
         app:showAsAction="always" />
 
 
