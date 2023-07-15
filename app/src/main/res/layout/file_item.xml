@@ -1,26 +1,36 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    android:background="@drawable/background_with_border"
-    android:orientation="vertical">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel" />
+    </data>
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="3"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:layout_margin="20dp"
-        android:src="@drawable/ic_launcher_foreground" />
-
-    <TextView
-        android:id="@+id/descriptionTextView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical|center_horizontal"
-        android:textSize="16sp"
-        android:paddingTop="8dp" />
+        android:layout_margin="8dp"
+        android:background="@drawable/background_with_border"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:layout_margin="20dp"
+            android:src="@drawable/ic_launcher_foreground" />
+
+        <TextView
+            android:id="@+id/descriptionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical|center_horizontal"
+            android:textSize="16sp"
+            android:paddingTop="8dp"
+            android:text="@{viewModel.name}" />
+
+    </LinearLayout>
+</layout>
+

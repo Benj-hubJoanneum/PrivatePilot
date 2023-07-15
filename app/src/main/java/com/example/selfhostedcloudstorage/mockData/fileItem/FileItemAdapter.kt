@@ -4,13 +4,15 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Handler
-import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
+import com.example.selfhostedcloudstorage.databinding.FileItemBinding
 import com.example.selfhostedcloudstorage.mockData.model.FileType
 
 class FileItemAdapter(
@@ -20,18 +22,33 @@ class FileItemAdapter(
 
     private val selectedItems = mutableListOf<Int>()
     private var longPressHandler: Handler? = null
-    private val longPressDuration = 1000L // 1 second
+    private val longPressDuration = 500L // 0.5 second
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
-        val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.file_item, parent, false)
-        return FileViewHolder(itemView)
+        val inflater = LayoutInflater.from(parent.context)
+        val binding = FileItemBinding.inflate(inflater, parent, false)
+        return FileViewHolder(binding)
     }
+
+    override fun getItemCount(): Int {
+        return fileList.size
+    }
+
+        private fun getItemImage(context: Context, type: FileType): Drawable? {
+            return when (type) {
+                FileType.JPG -> ContextCompat.getDrawable(context, R.drawable.ic_image)
+                FileType.PDF -> ContextCompat.getDrawable(context, R.drawable.ic_pdf)
+                else -> ContextCompat.getDrawable(context, R.drawable.ic_document)
+            }
+        }
+
+
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val currentItem = fileList[position]
-        holder.bind(currentItem)
+        currentItem.drawable = getItemImage(holder.itemView.context, currentItem.type as FileType)
 
+        holder.bind(currentItem)
         // Set the item's selection state
         val isSelected = selectedItems.contains(position)
         holder.itemView.isSelected = isSelected
@@ -44,34 +61,21 @@ class FileItemAdapter(
         )
     }
 
-    override fun getItemCount(): Int {
-        return fileList.size
-    }
-
-    private fun getItemImage(context: Context, type: FileType): Drawable {
-        return when (type) {
-            FileType.JPG -> context.getDrawable(R.drawable.ic_image)!!
-            FileType.PDF -> context.getDrawable(R.drawable.ic_pdf)!!
-            else -> context.getDrawable(R.drawable.ic_document)!!
-        }
-    }
-
     fun updateList(newFileList: List<FileItemViewModel>) {
         fileList = newFileList
         notifyDataSetChanged()
     }
 
-    inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
-        View.OnClickListener, View.OnTouchListener {
+    inner class FileViewHolder(private val binding: FileItemBinding) :
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnTouchListener {
 
-        private val descriptionTextView: TextView = itemView.findViewById(R.id.descriptionTextView)
-        private val icon: ImageView = itemView.findViewById(R.id.imageView)
         private var longPressRunnable: Runnable? = null
 
         init {
-            itemView.setOnClickListener(this)
-            itemView.setOnTouchListener(this)
+            binding.root.setOnClickListener(this)
+            binding.root.setOnTouchListener(this)
         }
+
 
         override fun onTouch(view: View, event: MotionEvent): Boolean {
             when (event.action) {
@@ -131,8 +135,11 @@ class FileItemAdapter(
         }
 
         fun bind(fileItem: FileItemViewModel) {
-            descriptionTextView.text = fileItem.name
-            icon.setImageDrawable(getItemImage(itemView.context, fileItem.type as FileType))
+            binding.viewModel = fileItem
+            binding.executePendingBindings()
+
+            // Set the image drawable
+            binding.imageView.setImageDrawable(fileItem.drawable)
         }
     }
 }
