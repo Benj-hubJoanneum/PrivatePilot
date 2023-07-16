@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FragmentAllFilesBinding
-import com.example.selfhostedcloudstorage.mockData.MockService
 import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemAdapter
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
 import com.example.selfhostedcloudstorage.mockData.fileItem.ItemSelectionListener
 
 class AllFilesFragment : Fragment(), ItemSelectionListener {

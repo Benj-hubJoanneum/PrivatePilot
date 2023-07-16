@@ -1,6 +1,5 @@
 package com.example.selfhostedcloudstorage.mockData.fileItem
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Handler
@@ -9,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
@@ -34,19 +34,8 @@ class FileItemAdapter(
         return fileList.size
     }
 
-        private fun getItemImage(context: Context, type: FileType): Drawable? {
-            return when (type) {
-                FileType.JPG -> ContextCompat.getDrawable(context, R.drawable.ic_image)
-                FileType.PDF -> ContextCompat.getDrawable(context, R.drawable.ic_pdf)
-                else -> ContextCompat.getDrawable(context, R.drawable.ic_document)
-            }
-        }
-
-
-
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val currentItem = fileList[position]
-        currentItem.drawable = getItemImage(holder.itemView.context, currentItem.type as FileType)
 
         holder.bind(currentItem)
         // Set the item's selection state
@@ -135,11 +124,17 @@ class FileItemAdapter(
         }
 
         fun bind(fileItem: FileItemViewModel) {
+            fileItem.image = getItemImage(fileItem)
             binding.viewModel = fileItem
             binding.executePendingBindings()
+        }
 
-            // Set the image drawable
-            binding.imageView.setImageDrawable(fileItem.drawable)
+        private fun getItemImage(fileItem: FileItemViewModel): Drawable? {
+            return when (fileItem.type) {
+                FileType.JPG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
+                FileType.PDF -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_pdf)
+                else -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_document)
+            }
         }
     }
 }

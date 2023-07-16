@@ -20,7 +20,7 @@
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:layout_margin="20dp"
-            android:src="@drawable/ic_launcher_foreground" />
+            android:src="@{viewModel.image}" />
 
         <TextView
             android:id="@+id/descriptionTextView"

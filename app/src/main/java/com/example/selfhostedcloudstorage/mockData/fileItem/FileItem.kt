@@ -8,7 +8,7 @@ data class FileItem(override var name: String, val description: String) : IFile,
 
     override var type: Enum<FileType> = setByType()
 
-    private fun setByType(): Enum<FileType> {
+    private fun setByType(): FileType {
         val extension = name.substringAfterLast('.', "")
         return try {
             FileType.valueOf(extension.toUpperCase())
