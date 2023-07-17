@@ -2,27 +2,28 @@ package com.example.selfhostedcloudstorage.mockData.fileItem
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.os.Handler
+import android.view.ActionMode
 import android.view.LayoutInflater
-import android.view.MotionEvent
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FileItemBinding
 import com.example.selfhostedcloudstorage.mockData.model.FileType
 
 class FileItemAdapter(
     private var fileList: List<FileItemViewModel>,
-    private val itemSelectionListener: ItemSelectionListener
-) : RecyclerView.Adapter<FileItemAdapter.FileViewHolder>() {
+    private val mainActivity: MainActivity
+) : RecyclerView.Adapter<FileItemAdapter.FileViewHolder>(), ActionMode.Callback {
 
     private val selectedItems = mutableListOf<Int>()
-    private var longPressHandler: Handler? = null
-    private val longPressDuration = 500L // 0.5 second
+    private var actionMode: ActionMode? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -55,72 +56,75 @@ class FileItemAdapter(
         notifyDataSetChanged()
     }
 
-    inner class FileViewHolder(private val binding: FileItemBinding) :
-        RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnTouchListener {
+    override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        mode?.menuInflater?.inflate(R.menu.action_mode_menu, menu)
+        return true
+    }
 
-        private var longPressRunnable: Runnable? = null
+    override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+        return false
+    }
+
+    override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.menu_delete -> {
+                // Handle delete action
+                //deleteSelectedItems()
+                mode?.finish()
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun onDestroyActionMode(mode: ActionMode?) {
+        actionMode = null
+        mainActivity.invalidateOptionsMenu()
+    }
+
+    inner class FileViewHolder(private val binding: FileItemBinding) :
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         init {
             binding.root.setOnClickListener(this)
-            binding.root.setOnTouchListener(this)
-        }
-
-
-        override fun onTouch(view: View, event: MotionEvent): Boolean {
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    startLongPressHandler()
-                    itemView.setBackgroundColor(
-                        ContextCompat.getColor(
-                            itemView.context,
-                            R.color.selectedItemBackground
-                        )
-                    )
-                }
-                MotionEvent.ACTION_UP -> {
-                    cancelLongPressHandler()
-                    itemView.setBackgroundColor(Color.TRANSPARENT)
-                    onClick(view)
-                }
-                MotionEvent.ACTION_CANCEL -> {
-                    cancelLongPressHandler()
-                    itemView.setBackgroundColor(Color.TRANSPARENT)
-                }
-            }
-            return true
-        }
-
-        private fun startLongPressHandler() {
-            cancelLongPressHandler()
-            longPressHandler = Handler()
-            longPressRunnable = Runnable {
-                toggleSelection(adapterPosition)
-            }
-            longPressHandler?.postDelayed(longPressRunnable!!, longPressDuration)
-        }
-
-        private fun cancelLongPressHandler() {
-            longPressRunnable?.let { longPressHandler?.removeCallbacks(it) }
+            binding.root.setOnLongClickListener(this)
         }
 
         private fun toggleSelection(position: Int) {
             if (selectedItems.contains(position)) {
                 selectedItems.remove(position)
+                if (selectedItems.size < 1) {
+                    actionMode?.finish()
+                }
             } else {
                 selectedItems.add(position)
+                if (actionMode == null) {
+                    actionMode = mainActivity.startActionMode(this@FileItemAdapter)
+                }
             }
             notifyItemChanged(position)
-            itemSelectionListener.onItemsSelected(selectedItems.size)
         }
 
         override fun onClick(v: View) {
-            if (selectedItems.size < 1) {
-                val fileItem = fileList[adapterPosition]
-                val message = "${fileItem.name} clicked"
-                Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
-            } else {
-                toggleSelection(adapterPosition)
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                if (selectedItems.size < 1) {
+                    val fileItem = fileList[position]
+                    val message = "${fileItem.name} clicked"
+                    Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
+                } else {
+                    toggleSelection(position)
+                }
             }
+        }
+
+        override fun onLongClick(v: View?): Boolean {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                toggleSelection(position)
+                return true
+            }
+            return false
         }
 
         fun bind(fileItem: FileItemViewModel) {

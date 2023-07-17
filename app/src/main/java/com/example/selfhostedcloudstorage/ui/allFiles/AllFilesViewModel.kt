@@ -28,7 +28,6 @@ class AllFilesViewModel : ViewModel() {
                 FileItemViewModel(fileItem)
             }
         } catch (e: Exception) {
-            // Handle the load error here
             Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
         }
     }

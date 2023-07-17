@@ -1,10 +1,13 @@
 package com.example.selfhostedcloudstorage.ui.allFiles
 
+import android.app.SearchManager
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -12,10 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FragmentAllFilesBinding
 import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemAdapter
-import com.example.selfhostedcloudstorage.mockData.fileItem.ItemSelectionListener
 
-class AllFilesFragment : Fragment(), ItemSelectionListener {
-
+class AllFilesFragment : Fragment() {
     private var _binding: FragmentAllFilesBinding? = null
     private val binding get() = _binding!!
 
@@ -32,7 +33,7 @@ class AllFilesFragment : Fragment(), ItemSelectionListener {
         val allFilesViewModel = ViewModelProvider(this).get(AllFilesViewModel::class.java)
 
         // Initialize fileAdapter
-        fileAdapter = FileItemAdapter(emptyList(), this)
+        fileAdapter = FileItemAdapter(emptyList(), requireActivity() as MainActivity)
         allFilesViewModel.fileList.observe(viewLifecycleOwner) { fileList ->
             fileAdapter.updateList(fileList)
         }
@@ -53,10 +54,5 @@ class AllFilesFragment : Fragment(), ItemSelectionListener {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onItemsSelected(selectedCount: Int) {
-        val mainActivity = activity as? MainActivity
-        mainActivity?.onItemsSelected(selectedCount)
     }
 }
