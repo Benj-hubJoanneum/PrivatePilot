@@ -1,13 +1,11 @@
 package com.example.selfhostedcloudstorage
 
 import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.drawerlayout.widget.DrawerLayout
@@ -17,6 +15,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
+import com.example.selfhostedcloudstorage.mockData.MockService
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 
@@ -26,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
+    private val mockService = MockService.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
+
+        supportActionBar?.setDisplayShowTitleEnabled(true)
 
         binding.appBarMain.fab.setOnClickListener { view ->
             Snackbar.make(view, "This should be 'Add file'- Button", Snackbar.LENGTH_LONG)
@@ -63,18 +65,10 @@ class MainActivity : AppCompatActivity() {
     private fun handleIntent(intent: Intent) {
         if (Intent.ACTION_SEARCH == intent.action) {
             intent.getStringExtra(SearchManager.QUERY)?.also { query ->
-                performSearch(query)
+                onSearchQuery(query)
             }
         }
     }
-
-    private fun performSearch(query: String?) {
-        // Handle the search query here
-        // You can perform search operations or show search results
-        // For now, let's display a Toast message with the search query
-        Toast.makeText(this, "Search query: $query", Toast.LENGTH_SHORT).show()
-    }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
@@ -84,7 +78,10 @@ class MainActivity : AppCompatActivity() {
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                performSearch(query)
+                if (!query.isNullOrEmpty()) {
+                    onSearchQuery(query)
+                    searchView.clearFocus()
+                }
                 return true
             }
 
@@ -94,29 +91,22 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-        // Get the SearchView and set the searchable configuration
-        val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        (menu.findItem(R.id.action_search).actionView as SearchView).apply {
-            // Assumes current activity is the searchable activity
-            setSearchableInfo(searchManager.getSearchableInfo(componentName))
-            setIconifiedByDefault(false) // Do not iconify the widget; expand it by default
+        searchView.setOnCloseListener()  { //doesn't work
+            mockService.undoSearch()
+            true // Return true to consume the event
         }
 
+
         return true
+    }
+
+    private fun onSearchQuery(query: String) {
+        mockService.onSearchQuery(query)
     }
 
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_search -> {
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     override fun onActionModeStarted(mode: ActionMode) {

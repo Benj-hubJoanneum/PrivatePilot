@@ -68,13 +68,22 @@ class FileItemAdapter(
     override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
         when (item?.itemId) {
             R.id.menu_delete -> {
-                // Handle delete action
-                //deleteSelectedItems()
+                deleteSelectedItems()
                 mode?.finish()
                 return true
             }
         }
         return false
+    }
+
+    private fun deleteSelectedItems() {
+        val selectedItemsList = selectedItems.toList()
+        selectedItemsList.sortedDescending().forEach { position ->
+            fileList = fileList.filterIndexed { index, _ -> index != position }
+            notifyItemRemoved(position)
+        }
+        selectedItems.clear()
+        notifyDataSetChanged()
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {

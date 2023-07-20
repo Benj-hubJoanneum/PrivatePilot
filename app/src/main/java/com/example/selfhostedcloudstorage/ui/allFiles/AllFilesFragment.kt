@@ -1,13 +1,10 @@
 package com.example.selfhostedcloudstorage.ui.allFiles
 
-import android.app.SearchManager
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -21,6 +18,7 @@ class AllFilesFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var fileAdapter: FileItemAdapter
+    private lateinit var allFilesViewModel: AllFilesViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,8 +27,7 @@ class AllFilesFragment : Fragment() {
     ): View {
         _binding = FragmentAllFilesBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        val allFilesViewModel = ViewModelProvider(this).get(AllFilesViewModel::class.java)
+        allFilesViewModel = ViewModelProvider(this).get(AllFilesViewModel::class.java)
 
         // Initialize fileAdapter
         fileAdapter = FileItemAdapter(emptyList(), requireActivity() as MainActivity)
@@ -47,7 +44,6 @@ class AllFilesFragment : Fragment() {
         allFilesViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
         }
-
         return root
     }
 

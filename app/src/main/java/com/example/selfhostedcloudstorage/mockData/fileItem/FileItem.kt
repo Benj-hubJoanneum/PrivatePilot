@@ -11,7 +11,7 @@ data class FileItem(override var name: String, val description: String) : IFile,
     private fun setByType(): FileType {
         val extension = name.substringAfterLast('.', "")
         return try {
-            FileType.valueOf(extension.toUpperCase())
+            FileType.valueOf(extension.uppercase())
         } catch (e: IllegalArgumentException) {
             FileType.DOC
         }
