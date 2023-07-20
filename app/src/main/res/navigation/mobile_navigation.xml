@@ -3,18 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_all_files">
+    app:startDestination="@+id/nav_gridview">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.example.selfhostedcloudstorage.ui.home.ListFragment"
+        android:id="@+id/nav_listview"
+        android:name="com.example.selfhostedcloudstorage.ui.listView.ListFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_listview" />
 
     <fragment
-        android:id="@+id/nav_all_files"
-        android:name="com.example.selfhostedcloudstorage.ui.allFiles.GridFragment"
+        android:id="@+id/nav_gridview"
+        android:name="com.example.selfhostedcloudstorage.ui.gridView.GridFragment"
         android:label="@string/menu_gridview"
-        tools:layout="@layout/fragment_gridview" />
+        tools:layout="@layout/fragment_listview" />
 
 </navigation>

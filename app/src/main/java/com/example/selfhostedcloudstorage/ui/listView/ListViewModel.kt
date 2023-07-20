@@ -1,14 +1,14 @@
-package com.example.selfhostedcloudstorage.ui.home
+package com.example.selfhostedcloudstorage.ui.listView
 
 import android.content.ContentValues
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.mockData.MockService
-import com.example.selfhostedcloudstorage.mockData.NodesListener
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItem
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
+import com.example.selfhostedcloudstorage.service.MockService
+import com.example.selfhostedcloudstorage.service.NodesListener
+import com.example.selfhostedcloudstorage.model.fileItem.FileItem
+import com.example.selfhostedcloudstorage.model.fileItem.FileItemViewModel
 
 class ListViewModel : ViewModel(), NodesListener {
 

@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.mockData.model
+package com.example.selfhostedcloudstorage.model
 
 interface IFile : ITreeNode {
     var type : Enum<FileType>

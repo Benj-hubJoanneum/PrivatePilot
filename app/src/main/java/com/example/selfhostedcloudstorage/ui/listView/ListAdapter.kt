@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.home
+package com.example.selfhostedcloudstorage.ui.listView
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -14,9 +14,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
-import com.example.selfhostedcloudstorage.databinding.FileItemBinding
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
-import com.example.selfhostedcloudstorage.mockData.model.FileType
+import com.example.selfhostedcloudstorage.databinding.FileNodeBinding
+import com.example.selfhostedcloudstorage.model.fileItem.FileItemViewModel
+import com.example.selfhostedcloudstorage.model.FileType
 
 class ListAdapter(
     private var fileList: List<FileItemViewModel>,
@@ -28,7 +28,7 @@ class ListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = FileItemBinding.inflate(inflater, parent, false)
+        val binding = FileNodeBinding.inflate(inflater, parent, false)
         return FileViewHolder(binding)
     }
 
@@ -92,7 +92,7 @@ class ListAdapter(
         mainActivity.invalidateOptionsMenu()
     }
 
-    inner class FileViewHolder(private val binding: FileItemBinding) :
+    inner class FileViewHolder(private val binding: FileNodeBinding) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener, View.OnLongClickListener {
 
         init {

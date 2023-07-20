@@ -1,8 +1,8 @@
-package com.example.selfhostedcloudstorage.mockData
+package com.example.selfhostedcloudstorage.service
 
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItem
-import com.example.selfhostedcloudstorage.mockData.model.Directory
-import com.example.selfhostedcloudstorage.mockData.model.INode
+import com.example.selfhostedcloudstorage.model.fileItem.FileItem
+import com.example.selfhostedcloudstorage.model.Directory
+import com.example.selfhostedcloudstorage.model.INode
 
 class MockService private constructor() {
     companion object {

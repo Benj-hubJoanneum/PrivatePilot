@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.allFiles
+package com.example.selfhostedcloudstorage.ui.gridView
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FileItemBinding
-import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
-import com.example.selfhostedcloudstorage.mockData.model.FileType
+import com.example.selfhostedcloudstorage.model.fileItem.FileItemViewModel
+import com.example.selfhostedcloudstorage.model.FileType
 
 class GridAdapter(
     private var fileList: List<FileItemViewModel>,

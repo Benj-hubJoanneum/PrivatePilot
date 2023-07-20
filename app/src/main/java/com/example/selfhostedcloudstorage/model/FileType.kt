@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.mockData.model
+package com.example.selfhostedcloudstorage.model
 
 enum class FileType {
     PDF,

@@ -1,8 +1,8 @@
-package com.example.selfhostedcloudstorage.mockData.fileItem
+package com.example.selfhostedcloudstorage.model.fileItem
 
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.mockData.model.FileType
+import com.example.selfhostedcloudstorage.model.FileType
 
 class FileItemViewModel(fileItem: FileItem) : ViewModel() {
     val name: String = fileItem.name

@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.mockData
+package com.example.selfhostedcloudstorage.service
 
 interface NodesListener {
     fun onSourceChanged()

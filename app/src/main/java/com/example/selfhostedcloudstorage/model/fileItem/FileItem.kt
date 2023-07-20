@@ -1,8 +1,8 @@
-package com.example.selfhostedcloudstorage.mockData.fileItem
+package com.example.selfhostedcloudstorage.model.fileItem
 
-import com.example.selfhostedcloudstorage.mockData.model.FileType
-import com.example.selfhostedcloudstorage.mockData.model.IFile
-import com.example.selfhostedcloudstorage.mockData.model.ITreeNode
+import com.example.selfhostedcloudstorage.model.FileType
+import com.example.selfhostedcloudstorage.model.IFile
+import com.example.selfhostedcloudstorage.model.ITreeNode
 
 data class FileItem(override var name: String, val description: String) : IFile, ITreeNode {
 

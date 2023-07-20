@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.drawerlayout.widget.DrawerLayout
@@ -15,7 +14,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
-import com.example.selfhostedcloudstorage.mockData.MockService
+import com.example.selfhostedcloudstorage.service.MockService
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 
@@ -47,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_all_files
+                R.id.nav_listview, R.id.nav_gridview
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
