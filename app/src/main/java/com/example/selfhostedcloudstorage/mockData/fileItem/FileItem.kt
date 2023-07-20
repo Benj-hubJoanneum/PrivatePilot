@@ -2,11 +2,12 @@ package com.example.selfhostedcloudstorage.mockData.fileItem
 
 import com.example.selfhostedcloudstorage.mockData.model.FileType
 import com.example.selfhostedcloudstorage.mockData.model.IFile
-import com.example.selfhostedcloudstorage.mockData.model.INode
+import com.example.selfhostedcloudstorage.mockData.model.ITreeNode
 
-data class FileItem(override var name: String, val description: String) : IFile, INode {
+data class FileItem(override var name: String, val description: String) : IFile, ITreeNode {
 
     override var type: Enum<FileType> = setByType()
+    override var level: Int = 0
 
     private fun setByType(): FileType {
         val extension = name.substringAfterLast('.', "")

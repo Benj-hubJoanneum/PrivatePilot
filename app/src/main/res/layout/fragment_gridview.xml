@@ -20,7 +20,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
-            android:text="@string/menu_all_files" />
+            android:text="@string/menu_gridview" />
 
         <ScrollView
             android:id="@+id/scrollViewLayout"

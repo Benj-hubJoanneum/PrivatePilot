@@ -1,6 +1,5 @@
 package com.example.selfhostedcloudstorage.mockData.model
 
-interface IFile {
-    var name : String
+interface IFile : ITreeNode {
     var type : Enum<FileType>
 }

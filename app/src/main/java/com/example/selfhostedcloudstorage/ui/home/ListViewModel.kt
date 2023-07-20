@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.allFiles
+package com.example.selfhostedcloudstorage.ui.home
 
 import android.content.ContentValues
 import android.util.Log
@@ -10,7 +10,7 @@ import com.example.selfhostedcloudstorage.mockData.NodesListener
 import com.example.selfhostedcloudstorage.mockData.fileItem.FileItem
 import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
 
-class AllFilesViewModel : ViewModel(), NodesListener {
+class ListViewModel : ViewModel(), NodesListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"

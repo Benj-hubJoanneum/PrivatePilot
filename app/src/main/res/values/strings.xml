@@ -13,5 +13,5 @@
 
     <string name="menu_last_upload">Last Upload</string>
     <string name="menu_last_access">Last Access</string>
-    <string name="menu_all_files">All Files</string>
+    <string name="menu_gridview">All Files</string>
 </resources>

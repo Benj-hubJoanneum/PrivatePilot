@@ -1,4 +1,5 @@
 package com.example.selfhostedcloudstorage.mockData.model
 
-interface IDirectory : ITreeNode{
+interface ITreeNode : INode {
+    var level : Int
 }

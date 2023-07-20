@@ -3,9 +3,6 @@ package com.example.selfhostedcloudstorage.mockData
 import com.example.selfhostedcloudstorage.mockData.fileItem.FileItem
 import com.example.selfhostedcloudstorage.mockData.model.Directory
 import com.example.selfhostedcloudstorage.mockData.model.INode
-import com.example.selfhostedcloudstorage.ui.allFiles.AllFilesFragment
-import com.example.selfhostedcloudstorage.ui.allFiles.AllFilesViewModel
-import org.w3c.dom.Node
 
 class MockService private constructor() {
     companion object {
@@ -24,11 +21,11 @@ class MockService private constructor() {
 
     init {
         fullFileList = mutableListOf(
-            FileItem("num1.txt", ""),
-            FileItem("num2.xlsx", ""),
-            FileItem("num3.pdf", ""),
-            FileItem("num4.jpg", ""),
-            FileItem("num4.png", "")
+            FileItem("folder/num1.txt", ""),
+            FileItem("folder/num2.xlsx", ""),
+            FileItem("folder(2)/num3.pdf", ""),
+            FileItem("folder(2)/num4.jpg", ""),
+            FileItem("folder(2)/num4.png", "")
         )
 
         documentsDirectory = Directory("Documents")

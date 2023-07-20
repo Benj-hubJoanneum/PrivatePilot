@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.mockData.fileItem
+package com.example.selfhostedcloudstorage.ui.allFiles
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -15,12 +15,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FileItemBinding
+import com.example.selfhostedcloudstorage.mockData.fileItem.FileItemViewModel
 import com.example.selfhostedcloudstorage.mockData.model.FileType
 
-class FileItemAdapter(
+class GridAdapter(
     private var fileList: List<FileItemViewModel>,
     private val mainActivity: MainActivity
-) : RecyclerView.Adapter<FileItemAdapter.FileViewHolder>(), ActionMode.Callback {
+) : RecyclerView.Adapter<GridAdapter.FileViewHolder>(), ActionMode.Callback {
 
     private val selectedItems = mutableListOf<Int>()
     private var actionMode: ActionMode? = null
@@ -108,7 +109,7 @@ class FileItemAdapter(
             } else {
                 selectedItems.add(position)
                 if (actionMode == null) {
-                    actionMode = mainActivity.startActionMode(this@FileItemAdapter)
+                    actionMode = mainActivity.startActionMode(this@GridAdapter)
                 }
             }
             notifyItemChanged(position)

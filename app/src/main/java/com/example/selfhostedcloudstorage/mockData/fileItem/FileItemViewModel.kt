@@ -8,6 +8,7 @@ class FileItemViewModel(fileItem: FileItem) : ViewModel() {
     val name: String = fileItem.name
     val description: String = fileItem.description
     val type: FileType = fileItem.type as FileType
+    val level: Int = fileItem.level
     var image: Drawable? = null
         set(value) { field = value }
 }
