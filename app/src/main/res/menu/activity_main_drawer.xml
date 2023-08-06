@@ -12,5 +12,8 @@
             android:id="@+id/nav_gridview"
             android:icon="@drawable/ic_menu_gallery"
             android:title="@string/menu_gridview" />
+        <item
+            android:id="@+id/nav_treeview"
+            android:title="treeview" />
     </group>
 </menu>

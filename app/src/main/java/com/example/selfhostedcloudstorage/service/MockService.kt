@@ -1,7 +1,6 @@
 package com.example.selfhostedcloudstorage.service
 
 import com.example.selfhostedcloudstorage.model.fileItem.FileItem
-import com.example.selfhostedcloudstorage.model.Directory
 import com.example.selfhostedcloudstorage.model.INode
 
 class MockService private constructor() {
@@ -15,34 +14,33 @@ class MockService private constructor() {
             }
     }
 
-    val documentsDirectory: Directory
-    private var fullFileList: MutableList<INode> = mutableListOf()
+    var displayedList: MutableList<INode> = mutableListOf()
+    var fullFileList: MutableList<INode> = mutableListOf()
     private var listener: NodesListener? = null
 
     init {
         fullFileList = mutableListOf(
-            FileItem("folder/num1.txt", ""),
-            FileItem("folder/num2.xlsx", ""),
-            FileItem("folder(2)/num3.pdf", ""),
-            FileItem("folder(2)/num4.jpg", ""),
-            FileItem("folder(2)/num4.png", "")
+            FileItem("/num1.txt", ""),
+            FileItem("/num2.xlsx", ""),
+            FileItem("/folder/num3.pdf", ""),
+            FileItem("/folder/folder(2)/num4.jpg", ""),
+            FileItem("/folder/folder(2)/num4.png", "")
         )
 
-        documentsDirectory = Directory("Documents")
-        documentsDirectory.files = fullFileList
+        displayedList = fullFileList
     }
 
     fun onSearchQuery(query: String) {
         if (query.isNullOrBlank())
             undoSearch()
-        documentsDirectory.files = fullFileList.filterIsInstance<FileItem>().filter { fileItem ->
+        displayedList = fullFileList.filterIsInstance<FileItem>().filter { fileItem ->
             fileItem.name.contains(query, ignoreCase = true)
         }.toMutableList()
         listener?.onSourceChanged()
     }
 
     fun undoSearch(){
-        documentsDirectory.files = fullFileList
+        displayedList = fullFileList
         listener?.onSourceChanged()
     }
 

@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.listView
+package com.example.selfhostedcloudstorage.ui.treeView
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,12 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
 
-class ListFragment : Fragment() {
+class TreeFragment : Fragment() {
     private var _binding: FragmentListviewBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var listAdapter: ListAdapter
-    private lateinit var listViewModel: ListViewModel
+    private lateinit var treeAdapter: TreeAdapter
+    private lateinit var treeViewModel: TreeViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,21 +26,21 @@ class ListFragment : Fragment() {
     ): View {
         _binding = FragmentListviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        listViewModel = ViewModelProvider(this)[ListViewModel::class.java]
+        treeViewModel = ViewModelProvider(this)[TreeViewModel::class.java]
 
         // Initialize fileAdapter
-        listAdapter = ListAdapter(emptyList(), requireActivity() as MainActivity)
-        listViewModel.itemList.observe(viewLifecycleOwner) { fileList ->
-            listAdapter.updateList(fileList)
+        treeAdapter = TreeAdapter(emptyList(), requireActivity() as MainActivity)
+        treeViewModel.itemList.observe(viewLifecycleOwner) { directoryList ->
+            treeAdapter.updateList(directoryList)
         }
 
         // Setup RecyclerView
         val recyclerView: RecyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = listAdapter
+        recyclerView.adapter = treeAdapter
 
         val textView: TextView = binding.textAllFiles
-        listViewModel.text.observe(viewLifecycleOwner) { text ->
+        treeViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
         }
         return root

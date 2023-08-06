@@ -19,7 +19,7 @@ import com.example.selfhostedcloudstorage.model.fileItem.FileItemViewModel
 import com.example.selfhostedcloudstorage.model.FileType
 
 class GridAdapter(
-    private var fileList: List<FileItemViewModel>,
+    private var itemList: List<FileItemViewModel>,
     private val mainActivity: MainActivity
 ) : RecyclerView.Adapter<GridAdapter.FileViewHolder>(), ActionMode.Callback {
 
@@ -33,11 +33,11 @@ class GridAdapter(
     }
 
     override fun getItemCount(): Int {
-        return fileList.size
+        return itemList.size
     }
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
-        val currentItem = fileList[position]
+        val currentItem = itemList[position]
 
         holder.bind(currentItem)
         // Set the item's selection state
@@ -52,8 +52,8 @@ class GridAdapter(
         )
     }
 
-    fun updateList(newFileList: List<FileItemViewModel>) {
-        fileList = newFileList
+    fun updateList(newItemList: List<FileItemViewModel>) {
+        itemList = newItemList
         notifyDataSetChanged()
     }
 
@@ -80,7 +80,7 @@ class GridAdapter(
     private fun deleteSelectedItems() {
         val selectedItemsList = selectedItems.toList()
         selectedItemsList.sortedDescending().forEach { position ->
-            fileList = fileList.filterIndexed { index, _ -> index != position }
+            itemList = itemList.filterIndexed { index, _ -> index != position }
             notifyItemRemoved(position)
         }
         selectedItems.clear()
@@ -119,7 +119,7 @@ class GridAdapter(
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 if (selectedItems.size < 1) {
-                    val fileItem = fileList[position]
+                    val fileItem = itemList[position]
                     val message = "${fileItem.name} clicked"
                     Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
                 } else {

@@ -30,8 +30,8 @@ class GridFragment : Fragment() {
 
         // Initialize fileAdapter
         gridAdapter = GridAdapter(emptyList(), requireActivity() as MainActivity)
-        gridViewModel.fileList.observe(viewLifecycleOwner) { fileList ->
-            gridAdapter.updateList(fileList)
+        gridViewModel.itemList.observe(viewLifecycleOwner) { itemList ->
+            gridAdapter.updateList(itemList)
         }
 
         // Setup RecyclerView

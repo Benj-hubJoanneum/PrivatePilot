@@ -16,8 +16,8 @@ class GridViewModel : ViewModel(), NodesListener {
         value = "This is slideshow Fragment"
     }
     val text: LiveData<String> = _text
-    private val _fileList = MutableLiveData<List<FileItemViewModel>>()
-    val fileList: LiveData<List<FileItemViewModel>> = _fileList
+    private val _itemList = MutableLiveData<List<FileItemViewModel>>()
+    val itemList: LiveData<List<FileItemViewModel>> = _itemList
 
     private val mockService = MockService.getInstance()
 
@@ -28,8 +28,8 @@ class GridViewModel : ViewModel(), NodesListener {
 
     private fun loadFileList() {
         try {
-            val fileList = mockService.documentsDirectory.files
-            _fileList.value = fileList.map { fileItem: Any ->
+            val fileList = mockService.displayedList
+            _itemList.value = fileList.map { fileItem: Any ->
                 FileItemViewModel(fileItem as FileItem)
             }
         } catch (e: Exception) {
