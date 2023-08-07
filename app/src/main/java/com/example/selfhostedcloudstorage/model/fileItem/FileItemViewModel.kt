@@ -13,6 +13,7 @@ class FileItemViewModel(fileItem: FileItem) : ViewModel() {
     val description: String = fileItem.description
     val type: FileType = fileItem.type as FileType
     val depth: Int = fileItem.depth
+    val path: String = fileItem.path
     var image: Drawable? = null
         set(value) { field = value }
 }

@@ -45,14 +45,11 @@ class TreeViewModel : ViewModel(), NodesListener {
                             currentPath += "/$folderName"
                         }
 
-                        // Debugging: Print the extracted folder names
-                        Log.d(ContentValues.TAG, "Extracted folder name: $currentPath")
-
                         // Check if this folder is unique and hasn't been added before
                         if (currentPath !in folderSet) {
                             folderSet.add(currentPath)
                             val depth = currentPath.count { it == '/' }
-                            itemList.add(DirectoryItemViewModel(DirectoryItem(currentPath, depth)))
+                            itemList.add(DirectoryItemViewModel(DirectoryItem(currentPath, depth - 1)))
                         }
                     }
                 }

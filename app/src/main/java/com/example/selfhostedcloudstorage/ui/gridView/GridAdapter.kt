@@ -120,7 +120,7 @@ class GridAdapter(
             if (position != RecyclerView.NO_POSITION) {
                 if (selectedItems.size < 1) {
                     val fileItem = itemList[position]
-                    val message = "${fileItem.name} clicked"
+                    val message = "${fileItem.path} clicked"
                     Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
                 } else {
                     toggleSelection(position)

@@ -50,7 +50,7 @@ class TreeAdapter(
 
         //setting padding
         val density = holder.itemView.context.resources.displayMetrics.density
-        val paddingLeftDp = currentItem.depth * 25 * density.toInt()
+        val paddingLeftDp = currentItem.depth * 30 * density.toInt()
         holder.itemView.setPadding(paddingLeftDp, 0, 0, 0)
     }
 
@@ -122,7 +122,7 @@ class TreeAdapter(
             if (position != RecyclerView.NO_POSITION) {
                 if (selectedItems.size < 1) {
                     val directoryItem = itemList[position]
-                    val message = "${directoryItem.name} clicked"
+                    val message = "${directoryItem.path} clicked"
                     Toast.makeText(itemView.context, message, Toast.LENGTH_SHORT).show()
                 } else {
                     toggleSelection(position)

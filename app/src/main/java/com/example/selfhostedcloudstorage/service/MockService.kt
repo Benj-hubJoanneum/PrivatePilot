@@ -2,6 +2,7 @@ package com.example.selfhostedcloudstorage.service
 
 import com.example.selfhostedcloudstorage.model.fileItem.FileItem
 import com.example.selfhostedcloudstorage.model.INode
+import java.util.TreeSet
 
 class MockService private constructor() {
     companion object {
@@ -14,33 +15,44 @@ class MockService private constructor() {
             }
     }
 
-    var displayedList: MutableList<INode> = mutableListOf()
-    var fullFileList: MutableList<INode> = mutableListOf()
     private var listener: NodesListener? = null
 
-    init {
-        fullFileList = mutableListOf(
-            FileItem("/num1.txt", ""),
-            FileItem("/num2.xlsx", ""),
-            FileItem("/folder/num3.pdf", ""),
-            FileItem("/folder/folder(2)/num4.jpg", ""),
-            FileItem("/folder/folder(2)/num4.png", "")
-        )
+    // Use TreeSet to maintain sorted order
+    private var fullFileList: TreeSet<INode> = TreeSet()
 
-        displayedList = fullFileList
+    init {
+        // Initialize your fullFileList TreeSet
+        fullFileList.addAll(
+            listOf(
+                FileItem("/num2.xlsx"),
+                FileItem("/folder(3)/folder(2)/num5.jpg"),
+                FileItem("/folder/num3.pdf"),
+                FileItem("/num1.txt"),
+                FileItem("/folder(3)/folder(2)/num4.png"),
+                FileItem("/folder/folder(2)/num4.jpg"),
+                FileItem("/folder(3)/folder(4)/num6.png")
+            )
+        )
+    }
+
+    var displayedList: MutableList<INode> = mutableListOf()
+
+    init {
+        displayedList.addAll(fullFileList)
     }
 
     fun onSearchQuery(query: String) {
         if (query.isNullOrBlank())
             undoSearch()
-        displayedList = fullFileList.filterIsInstance<FileItem>().filter { fileItem ->
-            fileItem.name.contains(query, ignoreCase = true)
+        displayedList = fullFileList.filter { node ->
+            (node is FileItem) && node.name.contains(query, ignoreCase = true)
         }.toMutableList()
         listener?.onSourceChanged()
     }
 
-    fun undoSearch(){
-        displayedList = fullFileList
+    fun undoSearch() {
+        displayedList.clear()
+        displayedList.addAll(fullFileList)
         listener?.onSourceChanged()
     }
 
