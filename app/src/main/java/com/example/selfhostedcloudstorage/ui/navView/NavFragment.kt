@@ -12,12 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
 
-class TreeFragment : Fragment() {
+class NavFragment : Fragment() {
     private var _binding: FragmentListviewBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var treeAdapter: TreeAdapter
-    private lateinit var treeModel: TreeViewModel
+    private lateinit var treeAdapter: NavAdapter
+    private lateinit var treeViewModel: NavModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,11 +26,11 @@ class TreeFragment : Fragment() {
     ): View {
         _binding = FragmentListviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        treeModel = ViewModelProvider(this)[TreeViewModel::class.java]
+        treeViewModel = ViewModelProvider(this)[NavModel::class.java]
 
         // Initialize fileAdapter
-        treeAdapter = TreeAdapter(emptyList(), requireActivity() as MainActivity)
-        treeModel.itemList.observe(viewLifecycleOwner) { directoryList ->
+        treeAdapter = NavAdapter(emptyList(), requireActivity() as MainActivity)
+        treeViewModel.itemList.observe(viewLifecycleOwner) { directoryList ->
             treeAdapter.updateList(directoryList)
         }
 
@@ -40,7 +40,7 @@ class TreeFragment : Fragment() {
         recyclerView.adapter = treeAdapter
 
         val textView: TextView = binding.textAllFiles
-        treeModel.text.observe(viewLifecycleOwner) { text ->
+        treeViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
         }
         return root
