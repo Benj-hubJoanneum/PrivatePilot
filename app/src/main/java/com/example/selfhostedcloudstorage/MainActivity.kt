@@ -8,16 +8,20 @@ import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
 import com.example.selfhostedcloudstorage.service.MockService
+import com.example.selfhostedcloudstorage.ui.treeView.NavAdapter
+import com.example.selfhostedcloudstorage.ui.treeView.NavModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +48,10 @@ class MainActivity : AppCompatActivity() {
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
+        // Set up the RecyclerView in the NavigationView
+        val drawerRecyclerView = binding.navView.findViewById<RecyclerView>(R.id.drawer_recyclerview)
+        drawerRecyclerView.layoutManager = LinearLayoutManager(this)
+
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_listview, R.id.nav_gridview, R.id.nav_treeview
@@ -51,6 +59,16 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        // Initialize NavModel and observe itemList changes to update the adapter
+        val navModel = ViewModelProvider(this).get(NavModel::class.java)
+        val navAdapter = NavAdapter(navModel.itemList.value ?: emptyList())
+        drawerRecyclerView.adapter = navAdapter
+
+        // Observe itemList changes to update the adapter
+        navModel.itemList.observe(this) { items ->
+            navAdapter.updateList(items)
+        }
 
         handleIntent(intent)
     }
@@ -87,14 +105,12 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextChange(newText: String?): Boolean {
                 return true //no search until finished
             }
-
         })
 
-        searchView.setOnCloseListener()  { //doesn't work
+        searchView.setOnCloseListener {
             mockService.undoSearch()
             true // Return true to consume the event
         }
-
 
         return true
     }
@@ -102,7 +118,6 @@ class MainActivity : AppCompatActivity() {
     private fun onSearchQuery(query: String) {
         mockService.onSearchQuery(query)
     }
-
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         return super.onPrepareOptionsMenu(menu)
