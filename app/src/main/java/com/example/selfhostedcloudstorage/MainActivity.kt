@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.drawerlayout.widget.DrawerLayout
@@ -52,6 +53,21 @@ class MainActivity : AppCompatActivity() {
         val drawerRecyclerView = binding.navView.findViewById<RecyclerView>(R.id.drawer_recyclerview)
         drawerRecyclerView.layoutManager = LinearLayoutManager(this)
 
+
+        val imageView: ImageView = findViewById(R.id.imageView)
+
+        // Set click listener on the ImageView to switch fragments
+        imageView.setOnClickListener {
+            val currentFragmentId = navController.currentDestination?.id
+            val newFragmentId = if (currentFragmentId == R.id.nav_listview) {
+                R.id.nav_gridview
+            } else {
+                R.id.nav_listview
+            }
+            navController.navigate(newFragmentId)
+            drawerLayout.closeDrawers()
+        }
+
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_listview, R.id.nav_gridview, R.id.nav_treeview
@@ -61,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         // Initialize NavModel and observe itemList changes to update the adapter
-        val navModel = ViewModelProvider(this).get(NavModel::class.java)
+        val navModel = ViewModelProvider(this)[NavModel::class.java]
         val navAdapter = NavAdapter(navModel.itemList.value ?: emptyList())
         drawerRecyclerView.adapter = navAdapter
 

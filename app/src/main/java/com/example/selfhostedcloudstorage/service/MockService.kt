@@ -24,13 +24,13 @@ class MockService private constructor() {
         // Initialize your fullFileList TreeSet
         fullFileList.addAll(
             listOf(
-                FileItem("/num2.xlsx"),
-                FileItem("/folder(3)/folder(2)/num5.jpg"),
-                FileItem("/folder/num3.pdf"),
-                FileItem("/num1.txt"),
-                FileItem("/folder(3)/folder(2)/num4.png"),
-                FileItem("/folder/folder(2)/num4.jpg"),
-                FileItem("/folder(3)/folder(4)/num6.png")
+                FileItem("num2.xlsx"),
+                FileItem("folder(3)/folder(2)/num5.jpg"),
+                FileItem("folder/num3.pdf"),
+                FileItem("num1.txt"),
+                FileItem("folder(3)/folder(2)/num4.png"),
+                FileItem("folder/folder(2)/num4.jpg"),
+                FileItem("folder(3)/folder(4)/num6.png")
             )
         )
     }
