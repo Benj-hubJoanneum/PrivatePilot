@@ -6,5 +6,6 @@ enum class FileType {
     XLSX,
     JPG,
     PNG,
-    DOC
+    DOC,
+    FOLDER
 }

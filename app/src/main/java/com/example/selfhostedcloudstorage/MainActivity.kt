@@ -18,9 +18,9 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
-import com.example.selfhostedcloudstorage.service.MockService
-import com.example.selfhostedcloudstorage.ui.treeView.NavAdapter
-import com.example.selfhostedcloudstorage.ui.treeView.NavModel
+import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
+import com.example.selfhostedcloudstorage.ui.navView.NavModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
-    private val mockService = MockService.getInstance()
+    private val apiService = ApiService.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,14 +49,11 @@ class MainActivity : AppCompatActivity() {
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
-        // Set up the RecyclerView in the NavigationView
         val drawerRecyclerView = binding.navView.findViewById<RecyclerView>(R.id.drawer_recyclerview)
         drawerRecyclerView.layoutManager = LinearLayoutManager(this)
 
-
         val imageView: ImageView = findViewById(R.id.imageView)
 
-        // Set click listener on the ImageView to switch fragments
         imageView.setOnClickListener {
             val currentFragmentId = navController.currentDestination?.id
             val newFragmentId = if (currentFragmentId == R.id.nav_listview) {
@@ -70,18 +67,16 @@ class MainActivity : AppCompatActivity() {
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_listview, R.id.nav_gridview, R.id.nav_treeview
+                R.id.nav_listview, R.id.nav_gridview
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        // Initialize NavModel and observe itemList changes to update the adapter
         val navModel = ViewModelProvider(this)[NavModel::class.java]
-        val navAdapter = NavAdapter(navModel.itemList.value ?: emptyList())
+        val navAdapter = NavAdapter(navModel.itemList.value ?: emptyList(), navModel)
         drawerRecyclerView.adapter = navAdapter
 
-        // Observe itemList changes to update the adapter
         navModel.itemList.observe(this) { items ->
             navAdapter.updateList(items)
         }
@@ -124,7 +119,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         searchView.setOnCloseListener {
-            mockService.undoSearch()
+            apiService.undoSearch()
             true // Return true to consume the event
         }
 
@@ -132,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSearchQuery(query: String) {
-        mockService.onSearchQuery(query)
+        apiService.onSearchQuery(query)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {

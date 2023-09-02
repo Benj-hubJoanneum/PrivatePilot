@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.treeView
+package com.example.selfhostedcloudstorage.ui.navView
 
 import android.content.ContentValues
 import android.util.Log
@@ -7,11 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
-import com.example.selfhostedcloudstorage.model.fileItem.FileItem
-import com.example.selfhostedcloudstorage.service.MockService
-import com.example.selfhostedcloudstorage.service.NodesListener
+import com.example.selfhostedcloudstorage.restapi.service.ApiListener
+import com.example.selfhostedcloudstorage.restapi.service.ApiService
 
-class NavModel : ViewModel(), NodesListener {
+class NavModel : ViewModel(), ApiListener {
+    private val _selectedFolder = MutableLiveData<DirectoryItemViewModel?>()
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"
@@ -20,48 +20,37 @@ class NavModel : ViewModel(), NodesListener {
     private val _itemList = MutableLiveData<List<DirectoryItemViewModel>>()
     val itemList: LiveData<List<DirectoryItemViewModel>> = _itemList
 
-    private val mockService = MockService.getInstance()
+    private val apiService = ApiService.getInstance()
 
     init {
         loadFolderList()
-        mockService.addListener(this)
+        setSelectedFolder(_itemList.value?.firstOrNull()) // Corrected function name here
+        apiService.addListener(this)
     }
 
     private fun loadFolderList() {
         try {
-            val itemList = mutableListOf<DirectoryItemViewModel>()
-            val folderSet = mutableSetOf<String>()
+            val itemList = apiService.directoryList
+            itemList.sortedWith(compareBy { it.parentFolder })
+                .map { directoryItem ->  directoryItem.depth = directoryItem.path.count { it == '/' } - 1 }
 
-            for (fileItem in mockService.displayedList.filterIsInstance<FileItem>()) {
-                val filePathSegments = fileItem.name.split("/")
-                var currentPath = ""
 
-                for ((index, folderName) in filePathSegments.withIndex()) {
-                    if (index < filePathSegments.size - 1) { // Ignore the last segment (file name)
-                        if (index == 0 && folderName.isEmpty()) {
-                            currentPath = "/"
-                        } else {
-                            currentPath += "/$folderName"
-                        }
+            _itemList.value = itemList.map { directoryItem: Any ->
+                DirectoryItemViewModel(directoryItem as DirectoryItem)
+            } // Then sort lexicographically by path
 
-                        // Check if this folder is unique and hasn't been added before
-                        if (currentPath !in folderSet) {
-                            folderSet.add(currentPath)
-                            val depth = currentPath.count { it == '/' }
-                            itemList.add(DirectoryItemViewModel(DirectoryItem(currentPath, depth - 1)))
-                        }
-                    }
-                }
-            }
-
-            _itemList.value = itemList
-        } catch (e: Exception) {
+            _itemList.value!!.forEach { println(it.path) }
+        }catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading folders: ${e.message}")
         }
     }
-
-
     override fun onSourceChanged() {
         loadFolderList()
+    }
+    fun setSelectedFolder(folder: DirectoryItemViewModel?) { // Corrected function name here
+        if (folder != null) {
+            _selectedFolder.value = folder
+            apiService.onOpenFolder(folder.path)
+        }
     }
 }

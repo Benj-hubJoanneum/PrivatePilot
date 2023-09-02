@@ -5,33 +5,36 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.service.MockService
-import com.example.selfhostedcloudstorage.service.NodesListener
-import com.example.selfhostedcloudstorage.model.fileItem.FileItem
-import com.example.selfhostedcloudstorage.model.fileItem.FileItemViewModel
+import com.example.selfhostedcloudstorage.model.FileType
+import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
+import com.example.selfhostedcloudstorage.restapi.service.ApiListener
 
-class ListViewModel : ViewModel(), NodesListener {
+class ListViewModel : ViewModel(), ApiListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"
     }
     val text: LiveData<String> = _text
-    private val _itemList = MutableLiveData<List<FileItemViewModel>>()
-    val itemList: LiveData<List<FileItemViewModel>> = _itemList
+    private val _itemList = MutableLiveData<List<NodeItemViewModel>>()
+    val itemList: LiveData<List<NodeItemViewModel>> = _itemList
 
-    private val mockService = MockService.getInstance()
+    private val apiService = ApiService.getInstance()
 
     init {
         loadFileList()
-        mockService.addListener(this)
+        apiService.addListener(this)
     }
 
     private fun loadFileList() {
         try {
-            val itemList = mockService.displayedList
+            val itemList = apiService.displayedList
             _itemList.value = itemList.map { fileItem: Any ->
-                FileItemViewModel(fileItem as FileItem)
-            }
+                NodeItemViewModel(fileItem as NodeItem)
+            }.sortedWith(compareBy(
+                { it.type != FileType.FOLDER },
+                { it.path }))
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
         }

@@ -1,7 +1,7 @@
 package com.example.selfhostedcloudstorage.model
 
 interface INode {
-    var parentFolder : IDirectory?
+    var parentFolder : String
     var name : String
     var path : String
 }

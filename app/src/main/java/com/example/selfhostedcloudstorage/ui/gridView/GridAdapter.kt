@@ -15,11 +15,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FileItemBinding
-import com.example.selfhostedcloudstorage.model.fileItem.FileItemViewModel
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.model.FileType
 
 class GridAdapter(
-    private var itemList: List<FileItemViewModel>,
+    private var itemList: List<NodeItemViewModel>,
     private val mainActivity: MainActivity
 ) : RecyclerView.Adapter<GridAdapter.FileViewHolder>(), ActionMode.Callback {
 
@@ -38,8 +38,8 @@ class GridAdapter(
 
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val currentItem = itemList[position]
-
         holder.bind(currentItem)
+
         // Set the item's selection state
         val isSelected = selectedItems.contains(position)
         holder.itemView.isSelected = isSelected
@@ -52,7 +52,7 @@ class GridAdapter(
         )
     }
 
-    fun updateList(newItemList: List<FileItemViewModel>) {
+    fun updateList(newItemList: List<NodeItemViewModel>) {
         itemList = newItemList
         notifyDataSetChanged()
     }
@@ -137,13 +137,13 @@ class GridAdapter(
             return false
         }
 
-        fun bind(fileItem: FileItemViewModel) {
+        fun bind(fileItem: NodeItemViewModel) {
             fileItem.image = getItemImage(fileItem)
             binding.viewModel = fileItem
             binding.executePendingBindings()
         }
 
-        private fun getItemImage(fileItem: FileItemViewModel): Drawable? {
+        private fun getItemImage(fileItem: NodeItemViewModel): Drawable? {
             return when (fileItem.type) {
                 FileType.JPG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
                 FileType.PDF -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_pdf)

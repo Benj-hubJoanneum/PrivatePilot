@@ -7,12 +7,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
-import com.example.selfhostedcloudstorage.model.fileItem.FileItem
-import com.example.selfhostedcloudstorage.service.MockService
-import com.example.selfhostedcloudstorage.service.NodesListener
-import java.io.File
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
+import com.example.selfhostedcloudstorage.restapi.service.ApiListener
+import com.example.selfhostedcloudstorage.restapi.service.ApiService
 
-class TreeViewModel : ViewModel(), NodesListener {
+class TreeViewModel : ViewModel(), ApiListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"
@@ -21,11 +20,11 @@ class TreeViewModel : ViewModel(), NodesListener {
     private val _itemList = MutableLiveData<List<DirectoryItemViewModel>>()
     val itemList: LiveData<List<DirectoryItemViewModel>> = _itemList
 
-    private val mockService = MockService.getInstance()
+    private val apiService = ApiService.getInstance()
 
     init {
         loadFolderList()
-        mockService.addListener(this)
+        apiService.addListener(this)
     }
 
     private fun loadFolderList() {
@@ -33,7 +32,7 @@ class TreeViewModel : ViewModel(), NodesListener {
             val itemList = mutableListOf<DirectoryItemViewModel>()
             val folderSet = mutableSetOf<String>()
 
-            for (fileItem in mockService.displayedList.filterIsInstance<FileItem>()) {
+            for (fileItem in apiService.displayedList.filterIsInstance<NodeItem>()) {
                 val filePathSegments = fileItem.name.split("/")
                 var currentPath = ""
 
@@ -49,7 +48,7 @@ class TreeViewModel : ViewModel(), NodesListener {
                         if (currentPath !in folderSet) {
                             folderSet.add(currentPath)
                             val depth = currentPath.count { it == '/' }
-                            itemList.add(DirectoryItemViewModel(DirectoryItem(currentPath, depth - 1)))
+                            itemList.add(DirectoryItemViewModel(DirectoryItem(currentPath, "", depth - 1)))
                         }
                     }
                 }

@@ -15,11 +15,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FileNodeBinding
-import com.example.selfhostedcloudstorage.model.fileItem.FileItemViewModel
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.model.FileType
 
 class ListAdapter(
-    private var itemList: List<FileItemViewModel>,
+    private var itemList: List<NodeItemViewModel>,
     private val mainActivity: MainActivity
 ) : RecyclerView.Adapter<ListAdapter.FileViewHolder>(), ActionMode.Callback {
 
@@ -52,7 +52,7 @@ class ListAdapter(
         )
     }
 
-    fun updateList(newFileList: List<FileItemViewModel>) {
+    fun updateList(newFileList: List<NodeItemViewModel>) {
         itemList = newFileList
         notifyDataSetChanged()
     }
@@ -137,13 +137,13 @@ class ListAdapter(
             return false
         }
 
-        fun bind(fileItem: FileItemViewModel) {
+        fun bind(fileItem: NodeItemViewModel) {
             fileItem.image = getItemImage(fileItem)
             binding.viewModel = fileItem
             binding.executePendingBindings()
         }
 
-        private fun getItemImage(fileItem: FileItemViewModel): Drawable? {
+        private fun getItemImage(fileItem: NodeItemViewModel): Drawable? {
             return when (fileItem.type) {
                 FileType.JPG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
                 FileType.PDF -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_pdf)
