@@ -1,19 +1,19 @@
-package com.example.selfhostedcloudstorage.restapi.webAccess
+package com.example.selfhostedcloudstorage.restapi.client
 
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-class WebAccess private constructor() {
+class ClientAccess private constructor() {
     companion object {
         @Volatile
-        private var instance: WebAccess? = null
+        private var instance: ClientAccess? = null
 
         @JvmStatic
-        fun getInstance(): WebAccess =
+        fun getInstance(): ClientAccess =
             instance ?: synchronized(this) {
-                instance ?: WebAccess().also { instance = it }
+                instance ?: ClientAccess().also { instance = it }
             }
     }
 

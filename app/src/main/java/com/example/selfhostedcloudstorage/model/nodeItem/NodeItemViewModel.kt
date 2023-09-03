@@ -10,9 +10,7 @@ class NodeItemViewModel(nodeItem: NodeItem) : ViewModel() {
     } else {
         nodeItem.name
     }
-    val description: String = nodeItem.description
-    val type: FileType = nodeItem.type as FileType
-    val depth: Int = nodeItem.depth
+    val type: FileType = nodeItem.type
     val path: String = nodeItem.path
     var image: Drawable? = null
         set(value) { field = value }

@@ -6,5 +6,4 @@ class DirectoryItemViewModel(directoryItem: DirectoryItem) : ViewModel() {
     var name: String = directoryItem.name
     val path: String = directoryItem.path
     val depth: Int = directoryItem.depth
-    val parentFolder: String = directoryItem.parentFolder
 }

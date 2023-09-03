@@ -31,15 +31,14 @@ class NavModel : ViewModel(), ApiListener {
     private fun loadFolderList() {
         try {
             val itemList = apiService.directoryList
+
             itemList.sortedWith(compareBy { it.parentFolder })
-                .map { directoryItem ->  directoryItem.depth = directoryItem.path.count { it == '/' } - 1 }
+                .map { DirectoryItemViewModel(it)
+                    it.depth = it.path.count { it == '/' } - 1
+                }
 
+            _itemList.postValue(itemList.map { DirectoryItemViewModel(it) })
 
-            _itemList.value = itemList.map { directoryItem: Any ->
-                DirectoryItemViewModel(directoryItem as DirectoryItem)
-            } // Then sort lexicographically by path
-
-            _itemList.value!!.forEach { println(it.path) }
         }catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading folders: ${e.message}")
         }

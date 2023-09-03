@@ -1,10 +1,12 @@
 package com.example.selfhostedcloudstorage.restapi.service
 
+import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerListener
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerNode
+import com.example.selfhostedcloudstorage.restapi.model.IMetadata
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +26,7 @@ class ApiService private constructor() : ControllerListener {
     internal var directoryList: MutableSet<DirectoryItem> = mutableSetOf()
     internal var displayedList: MutableList<INode> = mutableListOf()
     private var controllerNode = ControllerNode()
-    private var listeners: MutableSet<ApiListener> = mutableSetOf() // List of listeners
+    private var listeners: MutableSet<ApiListener> = mutableSetOf()
 
     init {
         controllerNode.addListener(this)
@@ -70,12 +72,20 @@ class ApiService private constructor() : ControllerListener {
 
     private fun directoryListaddByParent(list : MutableSet<DirectoryItem>) {
         list -= directoryList
-        var newList = directoryList.sortedByDescending { it -> it.name }.toMutableList()
+        var newList = directoryList.toMutableList()
 
-        for (newNode in list){
-            val index = directoryList.indexOfFirst { it.name == newNode.parentFolder }
+        for (newNode in list.sortedByDescending { it.name }){
+            val index = directoryList.indexOfFirst { it.path == newNode.parentFolder }
             newList.add(index + 1, newNode)
         }
         directoryList = newList.toMutableSet()
+    }
+
+    private fun displaylistSorting(){
+        displayedList = fullFileList
+            .sortedWith(compareBy(
+                { it.type != FileType.FOLDER },
+                { it.name }))
+            .toMutableList()
     }
 }

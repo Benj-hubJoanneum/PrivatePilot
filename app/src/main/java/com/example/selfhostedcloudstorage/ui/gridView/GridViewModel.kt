@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.restapi.service.ApiService
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
@@ -25,17 +24,13 @@ class GridViewModel : ViewModel(), ApiListener {
     init {
         loadFileList()
         apiService.addListener(this)
-        apiService.displayedList.forEach { line -> println("PATH FOR GRIDVIEW " + line.path) }
     }
 
     private fun loadFileList() {
         try {
             val fileList = apiService.displayedList
-            _itemList.value = fileList.map { fileItem:   Any ->
-                NodeItemViewModel(fileItem as NodeItem)
-            }.sortedWith(compareBy(
-                    { it.type != FileType.FOLDER },
-                    { it.path }))
+
+            _itemList.postValue(fileList.map { NodeItemViewModel(it as NodeItem) })
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
         }
