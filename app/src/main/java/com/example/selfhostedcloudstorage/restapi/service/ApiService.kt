@@ -62,7 +62,7 @@ class ApiService private constructor() : ControllerListener {
     override fun onSourceChanged() {
         fullFileList = controllerNode._nodeList
         directoryListaddByParent(controllerNode.directoryList)
-        displayedList = fullFileList.toMutableList()
+        displaylistSorting()
         notifyListeners()
     }
 
