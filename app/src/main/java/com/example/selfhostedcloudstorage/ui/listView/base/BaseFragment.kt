@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.gridView
+package com.example.selfhostedcloudstorage.ui.listView.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,40 +7,38 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
+import com.example.selfhostedcloudstorage.ui.listView.viewModel.RecyclerViewModel
 
-class GridFragment : Fragment() {
+abstract class BaseFragment(): Fragment() {
     private var _binding: FragmentListviewBinding? = null
     private val binding get() = _binding!!
-
-    private lateinit var gridAdapter: GridAdapter
-    private lateinit var gridViewModel: GridViewModel
+    private lateinit var adapter : BaseAdapter
+    private lateinit var recyclerViewModel: RecyclerViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         _binding = FragmentListviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        gridViewModel = ViewModelProvider(this)[GridViewModel::class.java]
+        recyclerViewModel = ViewModelProvider(this)[RecyclerViewModel::class.java]
 
         // Initialize fileAdapter
-        gridAdapter = GridAdapter(emptyList(), requireActivity() as MainActivity)
-        gridViewModel.itemList.observe(viewLifecycleOwner) { itemList ->
-            gridAdapter.updateList(itemList)
+        recyclerViewModel.itemList.observe(viewLifecycleOwner) { newItemList ->
+            adapter.updateList(newItemList)
         }
 
         // Setup RecyclerView
         val recyclerView: RecyclerView = binding.recyclerView
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        recyclerView.adapter = gridAdapter
+        recyclerView.layoutManager = createLayoutManager()
+        recyclerView.adapter = adapter
 
         val textView: TextView = binding.textAllFiles
-        gridViewModel.text.observe(viewLifecycleOwner) { text ->
+        recyclerViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
         }
         return root
@@ -50,4 +48,6 @@ class GridFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+    abstract fun createLayoutManager(): RecyclerView.LayoutManager
+
 }

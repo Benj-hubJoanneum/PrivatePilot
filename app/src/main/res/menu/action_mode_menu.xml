@@ -27,8 +27,4 @@
         android:title="open with"
         android:icon="@drawable/ic_open"
         app:showAsAction="ifRoom" />
-
-
-
-
 </menu>

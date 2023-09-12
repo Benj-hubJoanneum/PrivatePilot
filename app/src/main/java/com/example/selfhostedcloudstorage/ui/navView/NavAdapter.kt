@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.DirectoryNodeBinding
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
-import com.example.selfhostedcloudstorage.restapi.service.ApiService
 
 class NavAdapter(
     private var itemList: List<DirectoryItemViewModel>,

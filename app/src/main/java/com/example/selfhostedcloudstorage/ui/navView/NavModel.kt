@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.ApiListener
 import com.example.selfhostedcloudstorage.restapi.service.ApiService

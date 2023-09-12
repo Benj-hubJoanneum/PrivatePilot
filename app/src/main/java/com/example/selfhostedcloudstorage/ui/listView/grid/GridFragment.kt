@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.listView
+package com.example.selfhostedcloudstorage.ui.listView.grid
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,13 +11,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
+import com.example.selfhostedcloudstorage.ui.listView.list.ListAdapter
+import com.example.selfhostedcloudstorage.ui.listView.viewModel.RecyclerViewModel
 
-class ListFragment : Fragment() {
+class GridFragment : Fragment() {
     private var _binding: FragmentListviewBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var listAdapter: ListAdapter
-    private lateinit var listViewModel: ListViewModel
+    private lateinit var listAdapter: GridAdapter
+    private lateinit var recyclerViewModel: RecyclerViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,12 +28,12 @@ class ListFragment : Fragment() {
     ): View {
         _binding = FragmentListviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        listViewModel = ViewModelProvider(this)[ListViewModel::class.java]
+        recyclerViewModel = ViewModelProvider(this)[RecyclerViewModel::class.java]
 
         // Initialize fileAdapter
-        listAdapter = ListAdapter(emptyList(), requireActivity() as MainActivity)
-        listViewModel.itemList.observe(viewLifecycleOwner) { fileList ->
-            listAdapter.updateList(fileList)
+        listAdapter = GridAdapter(emptyList(), requireActivity() as MainActivity)
+        recyclerViewModel.itemList.observe(viewLifecycleOwner) { newItemList ->
+            listAdapter.updateList(newItemList)
         }
 
         // Setup RecyclerView
@@ -40,7 +42,7 @@ class ListFragment : Fragment() {
         recyclerView.adapter = listAdapter
 
         val textView: TextView = binding.textAllFiles
-        listViewModel.text.observe(viewLifecycleOwner) { text ->
+        recyclerViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
         }
         return root

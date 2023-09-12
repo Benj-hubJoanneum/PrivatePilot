@@ -1,17 +1,16 @@
-package com.example.selfhostedcloudstorage.ui.listView
+package com.example.selfhostedcloudstorage.ui.listView.viewModel
 
 import android.content.ContentValues
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.restapi.service.ApiService
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.ApiListener
 
-class ListViewModel : ViewModel(), ApiListener {
+class RecyclerViewModel : ViewModel(), ApiListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"
@@ -29,12 +28,9 @@ class ListViewModel : ViewModel(), ApiListener {
 
     private fun loadFileList() {
         try {
-            val itemList = apiService.displayedList
-            _itemList.value = itemList.map { fileItem: Any ->
-                NodeItemViewModel(fileItem as NodeItem)
-            }.sortedWith(compareBy(
-                { it.type != FileType.FOLDER },
-                { it.path }))
+            val fileList = apiService.displayedList
+
+            _itemList.postValue(fileList.map { NodeItemViewModel(it as NodeItem) })
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
         }

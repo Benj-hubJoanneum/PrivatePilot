@@ -58,6 +58,21 @@ class ApiService private constructor() : ControllerListener {
             onSourceChanged()
         }
     }
+    fun createNode(path: String, node: NodeItem) {
+        CoroutineScope(Dispatchers.IO).launch {
+            controllerNode.createNodes(path, node)
+            onSourceChanged()
+        }
+    }
+    fun updateNode(path: String) {
+
+    }
+    fun deleteNode(path: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            controllerNode.deleteNodes(path)
+            onSourceChanged()
+        }
+    }
 
     override fun onSourceChanged() {
         fullFileList = controllerNode._nodeList

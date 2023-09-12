@@ -1,31 +1,53 @@
 package com.example.selfhostedcloudstorage.restapi.controller
 
-import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
-import com.example.selfhostedcloudstorage.restapi.client.ClientAccess
-import com.example.selfhostedcloudstorage.restapi.client.WebApiClient
-import com.example.selfhostedcloudstorage.restapi.model.IMetadata
+import com.example.selfhostedcloudstorage.restapi.client.ApiClient
 import com.example.selfhostedcloudstorage.restapi.model.MetadataResponse
 import com.google.gson.Gson
 import okio.IOException
 import java.io.BufferedReader
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.OutputStream
 
 class ControllerNode {
-    private val clientAccess: ClientAccess = ClientAccess.getInstance()
 
     var directoryList = mutableSetOf<DirectoryItem>()
     var _nodeList = mutableSetOf<INode>()
 
     private var listener: ControllerListener? = null
 
-    suspend fun readNodes(url: String) {
-        val webApiClient = WebApiClient()
+    suspend fun createNodes(url: String, nodeData: NodeItem) {
+        val apiClient = ApiClient()
 
-        webApiClient.requestInputStream(url, object : WebApiClient.WebApiCallback {
+        // Convert your nodeData object to JSON, assuming you have a function for that
+        val jsonNodeData = convertNodeDataToJson(nodeData)
+
+        // Convert the JSON string to bytes
+        val jsonBytes = jsonNodeData.toByteArray(Charsets.UTF_8)
+
+        // Create an OutputStream from the byte array
+        val outputStream = ByteArrayOutputStream()
+        outputStream.write(jsonBytes)
+
+        apiClient.sendOutputStream(url, outputStream, object : ApiClient.ApiCallback {
+            override fun onSuccess(inputStream: InputStream?) {
+                // Handle success, if needed (POST request may or may not return a response body)
+            }
+
+            override fun onError(error: Throwable) {
+                println("Error: ${error.message}")
+            }
+        })
+    }
+
+    suspend fun readNodes(url: String) {
+        val apiClient = ApiClient()
+
+        apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
             override fun onSuccess(inputStream: InputStream?) {
                 try {
                     val json = convertInputStreamToString(inputStream)
@@ -46,6 +68,29 @@ class ControllerNode {
             }
         })
     }
+    suspend fun updateNodes(url: String) {
+
+    }
+    suspend fun deleteNodes(url: String) {
+        val apiClient = ApiClient()
+
+        apiClient.requestDelete(url, object : ApiClient.ApiCallback {
+            override fun onSuccess(inputStream: InputStream?) {
+                // Handle success, if needed (DELETE request usually doesn't return a response body)
+            }
+
+            override fun onError(error: Throwable) {
+                println("Error: ${error.message}")
+            }
+        })
+    }
+
+    private fun convertNodeDataToJson(node: NodeItem): String {
+        val gson = Gson()
+        return gson.toJson(node)
+    }
+
+
     private fun convertInputStreamToString(inputStream: InputStream?): String {
         val reader = BufferedReader(InputStreamReader(inputStream))
         val stringBuilder = StringBuilder()
