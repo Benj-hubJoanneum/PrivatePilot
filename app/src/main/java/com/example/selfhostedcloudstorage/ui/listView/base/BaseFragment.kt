@@ -22,12 +22,12 @@ abstract class BaseFragment(): Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentListviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
         recyclerViewModel = ViewModelProvider(this)[RecyclerViewModel::class.java]
 
         // Initialize fileAdapter
+        adapter = createAdapter()
         recyclerViewModel.itemList.observe(viewLifecycleOwner) { newItemList ->
             adapter.updateList(newItemList)
         }
@@ -48,6 +48,7 @@ abstract class BaseFragment(): Fragment() {
         super.onDestroyView()
         _binding = null
     }
+    abstract fun createAdapter(): BaseAdapter
     abstract fun createLayoutManager(): RecyclerView.LayoutManager
 
 }
