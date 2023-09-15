@@ -1,12 +1,12 @@
 package com.example.selfhostedcloudstorage.restapi.service
 
+import android.content.Context
 import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerListener
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerNode
-import com.example.selfhostedcloudstorage.restapi.model.IMetadata
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,6 +64,14 @@ class ApiService private constructor() : ControllerListener {
             onSourceChanged()
         }
     }
+
+    fun readNode(path: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            controllerNode.readNodes(path)
+            onSourceChanged()
+        }
+    }
+
     fun updateNode(path: String) {
 
     }
@@ -71,6 +79,12 @@ class ApiService private constructor() : ControllerListener {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.deleteNodes(path)
             onSourceChanged()
+        }
+    }
+
+    fun downloadFile(path: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            controllerNode.downloadFile(path)
         }
     }
 

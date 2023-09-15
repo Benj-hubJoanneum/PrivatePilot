@@ -1,6 +1,9 @@
 package com.example.selfhostedcloudstorage.restapi.client
 
+import android.content.Context
 import okhttp3.*
+import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -36,10 +39,16 @@ class ApiClient {
         })
     }
 
+
     fun sendOutputStream(url: String, outputStream: OutputStream, callback: ApiCallback) {
         val request = Request.Builder()
             .url(baseUrl + url)
-            .put(RequestBody.create(null, outputStream.toString())) // Replace null with appropriate media type
+            .post(
+                RequestBody.create(
+                    null,
+                    outputStream.toString()
+                )
+            ) // Replace null with appropriate media type
             .build()
 
         client.newCall(request).enqueue(object : Callback {

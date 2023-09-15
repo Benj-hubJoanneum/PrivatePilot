@@ -20,7 +20,9 @@ data class NodeItem(
     private fun setByType(): FileType {
         val extension = name.substringAfterLast('.', "")
         return try {
-            FileType.valueOf(extension.uppercase())
+            if (extension.isBlank())
+                FileType.FOLDER
+            else FileType.valueOf(extension.uppercase())
         } catch (e: IllegalArgumentException) {
             FileType.DOC
         }

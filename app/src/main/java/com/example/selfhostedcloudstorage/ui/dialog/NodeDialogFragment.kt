@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.NodeDialogBinding
-import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.ApiService
 
@@ -23,22 +22,17 @@ class NodeDialogFragment(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = NodeDialogBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         binding.viewModel = node
 
-        // Handle the "x" button click to close the dialog
         binding.closeButton.setOnClickListener {
             dismiss()
         }
-
-        // Handle the download button click to execute the getFile method
         binding.downloadButton.setOnClickListener {
-            // Replace this with the actual implementation of getFile
-            //getFile(node.path)
-            // Close the dialog if needed
+            apiService.downloadFile(node.path)
         }
         return root
     }

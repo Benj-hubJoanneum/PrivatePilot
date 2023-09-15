@@ -14,6 +14,7 @@ import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
+import com.example.selfhostedcloudstorage.restapi.service.ApiService
 import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
 
 abstract class BaseAdapter(
@@ -23,6 +24,7 @@ abstract class BaseAdapter(
 
     protected val selectedItems = mutableListOf<Int>()
     protected var actionMode: ActionMode? = null
+    private val apiService = ApiService.getInstance()
 
     override fun getItemCount(): Int {
         return itemList.size
@@ -70,14 +72,11 @@ abstract class BaseAdapter(
     }
 
     private fun deleteSelectedItems() { // updated to API ACCESS
-        val selectedItemsList = selectedItems.toList()
-
-        selectedItemsList.sortedDescending().forEach { position ->
-            itemList = itemList.filterIndexed { index, _ -> index != position }
-            notifyItemRemoved(position)
+        selectedItems.forEach{position ->
+            apiService.deleteNode(itemList[position].path)
         }
         selectedItems.clear()
-        notifyDataSetChanged()
+        apiService.onSourceChanged()
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {
@@ -120,6 +119,7 @@ abstract class BaseAdapter(
                 } else toggleSelection(position)
             }
         }
+
         override fun onLongClick(v: View?): Boolean {
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
@@ -130,8 +130,14 @@ abstract class BaseAdapter(
         }
         protected fun getItemImage(fileItem: NodeItemViewModel): Drawable? {
             return when (fileItem.type) {
-                FileType.JPG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
                 FileType.PDF -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_pdf)
+                FileType.TXT -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_text)
+                FileType.XLSX -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_table)
+                FileType.JPG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
+                FileType.JPEG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
+                FileType.PNG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
+                FileType.DOC -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_document)
+                FileType.FOLDER -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_folder)
                 else -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_document)
             }
         }

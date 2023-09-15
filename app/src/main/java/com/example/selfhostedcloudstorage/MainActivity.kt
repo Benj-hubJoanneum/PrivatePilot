@@ -1,13 +1,17 @@
 package com.example.selfhostedcloudstorage
 
+import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
 import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -41,8 +45,11 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
         binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "This should be 'Add file'- Button", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            // Open a file picker dialog
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "*/*"  // You can specify a MIME type if needed
+            openFileLauncher.launch(intent)
         }
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
@@ -150,4 +157,17 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
+    private val openFileLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Handle the selected file here
+                val selectedFileUri = result.data?.data
+                if (selectedFileUri != null) {
+                    // Use the selectedFileUri to access the chosen file
+                    // You can use the content resolver to read data from the selected file
+                    val inputStream = contentResolver.openInputStream(selectedFileUri)
+                    // Process the file using the inputStream
+                }
+            }
+        }
 }

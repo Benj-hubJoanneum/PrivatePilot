@@ -1,17 +1,22 @@
 package com.example.selfhostedcloudstorage.restapi.controller
 
+import android.content.Context
+import android.os.Environment
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.restapi.client.ApiClient
 import com.example.selfhostedcloudstorage.restapi.model.MetadataResponse
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okio.IOException
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.OutputStream
 
 class ControllerNode {
 
@@ -47,26 +52,29 @@ class ControllerNode {
     suspend fun readNodes(url: String) {
         val apiClient = ApiClient()
 
-        apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
-            override fun onSuccess(inputStream: InputStream?) {
-                try {
-                    val json = convertInputStreamToString(inputStream)
-                    val data = json.parseItemsFromResponse()
+        withContext(Dispatchers.IO) {
+            apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
+                override fun onSuccess(inputStream: InputStream?) {
+                    try {
+                        val json = convertInputStreamToString(inputStream)
+                        val data = json.parseItemsFromResponse()
 
-                    directoryList.addAll(data.items.filter { it.type == "folder" }.map {
-                        DirectoryItem(it.name, "$url/${it.name}")
-                    })
-                    _nodeList = data.items.map { NodeItem(it.name, "$url/${it.name}") }.toMutableSet()
-                    listener?.onSourceChanged()
-                } catch (e: IOException) {
-                    println("Error parsing JSON: ${e.message}")
+                        directoryList.addAll(data.items.filter { it.type == "folder" }.map {
+                            DirectoryItem(it.name, "$url/${it.name}")
+                        })
+                        _nodeList =
+                            data.items.map { NodeItem(it.name, "$url/${it.name}") }.toMutableSet()
+                        listener?.onSourceChanged()
+                    } catch (e: IOException) {
+                        println("Error parsing JSON: ${e.message}")
+                    }
                 }
-            }
 
-            override fun onError(error: Throwable) {
-                println("Error: ${error.message}")
-            }
-        })
+                override fun onError(error: Throwable) {
+                    println("Error: ${error.message}")
+                }
+            })
+        }
     }
     suspend fun updateNodes(url: String) {
 
@@ -77,6 +85,39 @@ class ControllerNode {
         apiClient.requestDelete(url, object : ApiClient.ApiCallback {
             override fun onSuccess(inputStream: InputStream?) {
                 // Handle success, if needed (DELETE request usually doesn't return a response body)
+            }
+
+            override fun onError(error: Throwable) {
+                println("Error: ${error.message}")
+            }
+        })
+    }
+
+    suspend fun downloadFile(url: String) {
+        val apiClient = ApiClient()
+
+        val destinationDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+
+        apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
+            override fun onSuccess(inputStream: InputStream?) {
+                try {
+                    if (inputStream != null) {
+                        val fileName = "received_file.ext"
+                        val outputFile = File(destinationDir, fileName)
+
+                        // Create an output stream to write the input stream to the file
+                        val fileOutputStream = FileOutputStream(outputFile)
+                        val buffer = ByteArray(1024)
+                        var bytesRead: Int
+                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                            fileOutputStream.write(buffer, 0, bytesRead)
+                        }
+                        fileOutputStream.close()
+                        inputStream.close()
+                    }
+                } catch (e: IOException) {
+                    println("Error saving file: ${e.message}")
+                }
             }
 
             override fun onError(error: Throwable) {

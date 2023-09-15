@@ -5,6 +5,7 @@ enum class FileType {
     TXT,
     XLSX,
     JPG,
+    JPEG,
     PNG,
     DOC,
     FOLDER
