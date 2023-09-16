@@ -107,17 +107,17 @@ abstract class BaseAdapter(
         }
 
         override fun onClick(v: View) {
-            val position = adapterPosition
-            if (position != RecyclerView.NO_POSITION) {
-                val fileItem = itemList[position]
+            if (adapterPosition == RecyclerView.NO_POSITION) return
 
-                if (selectedItems.size < 1) {
-                    // Show the NodeDialogFragment when an item is clicked
-                    val dialogFragment = NodeDialogFragment(fileItem)
-                    val fragmentManager = mainActivity.supportFragmentManager
-                    dialogFragment.show(fragmentManager, "NodeDialog")
-                } else toggleSelection(position)
-            }
+            val fileItem = itemList[adapterPosition]
+
+            if (selectedItems.size < 1) {
+                if (fileItem.type == FileType.FOLDER)
+                    apiService.onOpenFolder(fileItem.path)
+                else
+                    NodeDialogFragment(fileItem).show(mainActivity.supportFragmentManager, "NodeDialog")
+
+            } else toggleSelection(adapterPosition)
         }
 
         override fun onLongClick(v: View?): Boolean {
