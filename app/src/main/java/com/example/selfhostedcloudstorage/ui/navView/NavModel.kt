@@ -6,10 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
-import com.example.selfhostedcloudstorage.restapi.service.ApiListener
-import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.restapi.service.RepositoryListener
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
-class NavModel : ViewModel(), ApiListener {
+class NavModel : ViewModel(), RepositoryListener {
     private val _selectedFolder = MutableLiveData<DirectoryItemViewModel?>()
 
     private val _text = MutableLiveData<String>().apply {
@@ -19,17 +19,17 @@ class NavModel : ViewModel(), ApiListener {
     private val _itemList = MutableLiveData<List<DirectoryItemViewModel>>()
     val itemList: LiveData<List<DirectoryItemViewModel>> = _itemList
 
-    private val apiService = ApiService.getInstance()
+    private val nodeRepository = NodeRepository.getInstance()
 
     init {
         loadFolderList()
         setSelectedFolder(_itemList.value?.firstOrNull()) // Corrected function name here
-        apiService.addListener(this)
+        nodeRepository.addListener(this)
     }
 
     private fun loadFolderList() {
         try {
-            val itemList = apiService.directoryList
+            val itemList = nodeRepository.directoryList
 
             itemList.sortedWith(compareBy { it.parentFolder })
                 .map { DirectoryItemViewModel(it)
@@ -48,7 +48,7 @@ class NavModel : ViewModel(), ApiListener {
     fun setSelectedFolder(folder: DirectoryItemViewModel?) { // Corrected function name here
         if (folder != null) {
             _selectedFolder.value = folder
-            apiService.onOpenFolder(folder.path)
+            nodeRepository.readNode(folder.path)
         }
     }
 }

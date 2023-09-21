@@ -11,7 +11,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -22,18 +21,17 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
-import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavModel
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
-    private val apiService = ApiService.getInstance()
+    private val nodeRepository = NodeRepository.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
+        binding.appBarMain.fab.setOnClickListener { view -> // button to add file
             // Open a file picker dialog
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -126,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         searchView.setOnCloseListener {
-            apiService.undoSearch()
+            nodeRepository.undoSearch()
             true // Return true to consume the event
         }
 
@@ -134,7 +132,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSearchQuery(query: String) {
-        apiService.onSearchQuery(query)
+        nodeRepository.onSearchQuery(query)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {

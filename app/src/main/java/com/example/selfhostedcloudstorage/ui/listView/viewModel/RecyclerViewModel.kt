@@ -5,12 +5,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
-import com.example.selfhostedcloudstorage.restapi.service.ApiListener
+import com.example.selfhostedcloudstorage.restapi.service.RepositoryListener
 
-class RecyclerViewModel : ViewModel(), ApiListener {
+class RecyclerViewModel : ViewModel(), RepositoryListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"
@@ -19,16 +19,16 @@ class RecyclerViewModel : ViewModel(), ApiListener {
     private val _itemList = MutableLiveData<List<NodeItemViewModel>>()
     val itemList: LiveData<List<NodeItemViewModel>> = _itemList
 
-    private val apiService = ApiService.getInstance()
+    private val nodeRepository = NodeRepository.getInstance()
 
     init {
         loadFileList()
-        apiService.addListener(this)
+        nodeRepository.addListener(this)
     }
 
     private fun loadFileList() {
         try {
-            val fileList = apiService.displayedList
+            val fileList = nodeRepository.displayedList
 
             _itemList.postValue(fileList.map { NodeItemViewModel(it as NodeItem) })
         } catch (e: Exception) {

@@ -8,10 +8,10 @@ import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
-import com.example.selfhostedcloudstorage.restapi.service.ApiListener
-import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.restapi.service.RepositoryListener
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
-class TreeViewModel : ViewModel(), ApiListener {
+class TreeViewModel : ViewModel(), RepositoryListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"
@@ -20,11 +20,11 @@ class TreeViewModel : ViewModel(), ApiListener {
     private val _itemList = MutableLiveData<List<DirectoryItemViewModel>>()
     val itemList: LiveData<List<DirectoryItemViewModel>> = _itemList
 
-    private val apiService = ApiService.getInstance()
+    private val nodeRepository = NodeRepository.getInstance()
 
     init {
         loadFolderList()
-        apiService.addListener(this)
+        nodeRepository.addListener(this)
     }
 
     private fun loadFolderList() {
@@ -32,7 +32,7 @@ class TreeViewModel : ViewModel(), ApiListener {
             val itemList = mutableListOf<DirectoryItemViewModel>()
             val folderSet = mutableSetOf<String>()
 
-            for (fileItem in apiService.displayedList.filterIsInstance<NodeItem>()) {
+            for (fileItem in nodeRepository.displayedList.filterIsInstance<NodeItem>()) {
                 val filePathSegments = fileItem.name.split("/")
                 var currentPath = ""
 

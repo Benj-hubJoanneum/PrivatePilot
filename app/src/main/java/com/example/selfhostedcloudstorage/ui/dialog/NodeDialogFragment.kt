@@ -1,5 +1,6 @@
 package com.example.selfhostedcloudstorage.ui.dialog
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,15 +9,16 @@ import androidx.fragment.app.DialogFragment
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.NodeDialogBinding
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
-import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
 class NodeDialogFragment(
+    private val context: Context,
     private val node: NodeItemViewModel
 ) : DialogFragment() {
     private var _binding: NodeDialogBinding? = null
     private val binding get() = _binding!!
 
-    private val apiService = ApiService.getInstance()
+    private val nodeRepository = NodeRepository.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,7 +34,7 @@ class NodeDialogFragment(
             dismiss()
         }
         binding.downloadButton.setOnClickListener {
-            apiService.downloadFile(node.path)
+            nodeRepository.downloadFile(node.path, context)
         }
         return root
     }

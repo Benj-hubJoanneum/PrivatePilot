@@ -14,7 +14,7 @@ import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
-import com.example.selfhostedcloudstorage.restapi.service.ApiService
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
 
 abstract class BaseAdapter(
@@ -24,7 +24,7 @@ abstract class BaseAdapter(
 
     protected val selectedItems = mutableListOf<Int>()
     protected var actionMode: ActionMode? = null
-    private val apiService = ApiService.getInstance()
+    private val nodeRepository = NodeRepository.getInstance()
 
     override fun getItemCount(): Int {
         return itemList.size
@@ -73,10 +73,10 @@ abstract class BaseAdapter(
 
     private fun deleteSelectedItems() { // updated to API ACCESS
         selectedItems.forEach{position ->
-            apiService.deleteNode(itemList[position].path)
+            nodeRepository.deleteNode(itemList[position].path)
         }
         selectedItems.clear()
-        apiService.onSourceChanged()
+        nodeRepository.onSourceChanged()
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {
@@ -113,9 +113,9 @@ abstract class BaseAdapter(
 
             if (selectedItems.size < 1) {
                 if (fileItem.type == FileType.FOLDER)
-                    apiService.onOpenFolder(fileItem.path)
+                    nodeRepository.readNode(fileItem.path)
                 else
-                    NodeDialogFragment(fileItem).show(mainActivity.supportFragmentManager, "NodeDialog")
+                    NodeDialogFragment(mainActivity, fileItem).show(mainActivity.supportFragmentManager, "NodeDialog")
 
             } else toggleSelection(adapterPosition)
         }

@@ -1,5 +1,5 @@
 package com.example.selfhostedcloudstorage.restapi.service
 
-interface ApiListener {
+interface RepositoryListener {
     fun onSourceChanged()
 }

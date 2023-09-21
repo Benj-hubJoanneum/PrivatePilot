@@ -13,7 +13,6 @@ import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewM
 class NavAdapter(
     private var itemList: List<DirectoryItemViewModel>,
     private val navModel: NavModel
-
 ) : RecyclerView.Adapter<NavAdapter.DirViewHolder>() {
 
     private var selectedFolder: DirectoryItemViewModel? = null

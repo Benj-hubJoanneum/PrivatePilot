@@ -11,14 +11,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ApiService private constructor() : ControllerListener {
+class NodeRepository private constructor() : ControllerListener {
     companion object {
         @Volatile
-        private var instance: ApiService? = null
+        private var instance: NodeRepository? = null
 
-        fun getInstance(): ApiService =
+        fun getInstance(): NodeRepository =
             instance ?: synchronized(this) {
-                instance ?: ApiService().also { instance = it }
+                instance ?: NodeRepository().also { instance = it }
             }
     }
 
@@ -26,7 +26,7 @@ class ApiService private constructor() : ControllerListener {
     internal var directoryList: MutableSet<DirectoryItem> = mutableSetOf()
     internal var displayedList: MutableList<INode> = mutableListOf()
     private var controllerNode = ControllerNode()
-    private var listeners: MutableSet<ApiListener> = mutableSetOf()
+    private var listeners: MutableSet<RepositoryListener> = mutableSetOf()
 
     init {
         controllerNode.addListener(this)
@@ -48,16 +48,10 @@ class ApiService private constructor() : ControllerListener {
         notifyListeners()
     }
 
-    fun addListener(apiListener: ApiListener) {
-        listeners.add(apiListener)
+    fun addListener(repositoryListener: RepositoryListener) {
+        listeners.add(repositoryListener)
     }
 
-    fun onOpenFolder(path: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            controllerNode.readNodes(path)
-            onSourceChanged()
-        }
-    }
     fun createNode(path: String, node: NodeItem) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.createNodes(path, node)
@@ -82,9 +76,9 @@ class ApiService private constructor() : ControllerListener {
         }
     }
 
-    fun downloadFile(path: String) {
+    fun downloadFile(path: String, context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
-            controllerNode.downloadFile(path)
+            controllerNode.downloadFile(path, context)
         }
     }
 
