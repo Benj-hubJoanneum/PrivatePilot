@@ -1,6 +1,10 @@
 package com.example.selfhostedcloudstorage.restapi.service
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.INode
@@ -10,6 +14,7 @@ import com.example.selfhostedcloudstorage.restapi.controller.ControllerNode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 class NodeRepository private constructor() : ControllerListener {
     companion object {
@@ -76,7 +81,7 @@ class NodeRepository private constructor() : ControllerListener {
         }
     }
 
-    fun downloadFile(path: String, context: Context) {
+    fun downloadFile(context: Context, path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.downloadFile(path, context)
         }
@@ -110,5 +115,13 @@ class NodeRepository private constructor() : ControllerListener {
                 { it.type != FileType.FOLDER },
                 { it.name }))
             .toMutableList()
+    }
+
+    fun fileExist(context: Context, url: String): Boolean {
+        return controllerNode.fileExist(context, url)
+    }
+
+    fun openFile(context: Context, filePath: String) {
+        controllerNode.openFile(context, filePath)
     }
 }

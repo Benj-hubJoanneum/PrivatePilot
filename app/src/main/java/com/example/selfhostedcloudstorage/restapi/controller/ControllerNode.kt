@@ -2,7 +2,11 @@ package com.example.selfhostedcloudstorage.restapi.controller
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
+import android.net.Uri
 import android.os.Environment
+import android.util.Log
+import androidx.core.content.FileProvider
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
@@ -18,6 +22,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
+import kotlin.math.log
 
 class ControllerNode {
 
@@ -98,19 +103,17 @@ class ControllerNode {
     fun downloadFile(url: String, context: Context) {
         val apiClient = ApiClient()
 
-        val destinationDir = File(Environment.getExternalStorageDirectory(), "helloWorld")
-        //Note that alternatives such as Context.getExternalFilesDir(String) or MediaStore offer better performance.
-        destinationDir.mkdirs() //create folder with parents
-
         apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
             override fun onSuccess(inputStream: InputStream?) {
                 try {
                     if (inputStream != null) {
-
                         val fileName = url.substringAfter('/')
+                        val filepath = url.substringBeforeLast('/')
 
                         //public data
-                        var file = context.getExternalFilesDir("public_HelloWorld")
+                        var file = context.getExternalFilesDir("public_$filepath")
+                        file?.mkdirs()
+
                         var outputFile = File(file, fileName)
 
                         var fileOutputStream = FileOutputStream(outputFile)
@@ -122,7 +125,8 @@ class ControllerNode {
 
                         //private data
                         val wrapper = ContextWrapper(context)
-                        file = wrapper.getDir("private_HelloWorld", Context.MODE_PRIVATE )
+                        file = wrapper.getDir("private_$filepath", Context.MODE_PRIVATE )
+                        file.mkdirs()
                         outputFile = File(file, fileName)
 
                         fileOutputStream = FileOutputStream(outputFile)
@@ -133,11 +137,6 @@ class ControllerNode {
                         }
                         fileOutputStream.close()
                         inputStream.close()
-
-                        if (outputFile.exists()) {
-
-                            var x = "yeehaaa"
-                        }
                     }
                 } catch (e: IOException) {
                     println("Error saving file: ${e.message}")
@@ -149,186 +148,59 @@ class ControllerNode {
             }
         })
     }
-/*    fun downloadFile(url: String, context: Context) {
-        val apiClient = ApiClient()
 
-        val destinationDir = File(Environment.getExternalStorageDirectory(), "helloWorld")
-        //Note that alternatives such as Context.getExternalFilesDir(String) or MediaStore offer better performance.
-        destinationDir.mkdirs() //create folder with parents
+    fun fileExist(context: Context, url: String): Boolean {
+        val fileName = url.substringAfter('/')
+        val filepath = url.substringBeforeLast('/')
 
-        apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
-            override fun onSuccess(inputStream: InputStream?) {
-                try {
-                    if (inputStream != null) {
-                        val x = context.getExternalFilesDir("helloWorld")
-                        val wrapper = ContextWrapper(context)
-                        var file = wrapper.getDir("helloWorld", Context.MODE_PRIVATE )
-                        val fileName = url.substringAfter('/')
-                        val outputFile = File(file, fileName)
+        //public data
+        var file = context.getExternalFilesDir("public_$filepath")
+        var outputFile = File(file, fileName)
 
-                        val fileOutputStream = FileOutputStream(outputFile)
-                        val buffer = ByteArray(1024)
-                        var bytesRead: Int
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            fileOutputStream.write(buffer, 0, bytesRead)
-                        }
-                        fileOutputStream.close()
-                        inputStream.close()
+        if (outputFile.exists())
+            Log.d("FileExists", "File with name '$fileName' exists in directory '${outputFile.path}'")
 
-                        if (outputFile.exists()) {
 
-                            var x = "yeehaaa"
-                        }
-                    }
-                } catch (e: IOException) {
-                    println("Error saving file: ${e.message}")
-                }
+        //private data
+        val wrapper = ContextWrapper(context)
+        file = wrapper.getDir("private_$filepath", Context.MODE_PRIVATE )
+        outputFile = File(file, fileName)
+
+        if (outputFile.exists())
+            Log.d("FileExists", "File with name '$fileName' exists in directory '${outputFile.path}'")
+
+        return file.exists()
+    }
+
+    fun openFile(context: Context, url: String) {
+        val fileName = url.substringAfter('/')
+        val filepath = url.substringBeforeLast('/')
+
+        //public data
+        var path = context.getExternalFilesDir("public_$filepath")
+        var file = File(path, fileName)
+
+        if (file.exists()) {
+            //val uri = Uri.fromFile(file)
+            val mimeType = context.contentResolver.getType(Uri.fromFile(file))
+            val intent = Intent(Intent.ACTION_VIEW)
+            val uri = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".provider", file)
+
+            intent.setDataAndType(uri, mimeType)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            try {
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-            override fun onError(error: Throwable) {
-                println("Error: ${error.message}")
-            }
-        })
-    }*/
-
-  /*  suspend fun downloadFile(url: String, context: Context) {
-        val apiClient = ApiClient()
-
-        val destinationDir = File(Environment.getDataDirectory(), "selfhostedcloudstorage")
-
-        destinationDir.mkdirs() // Create the folder with parents if it doesn't exist
-
-        apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
-            @RequiresApi(Build.VERSION_CODES.Q)
-            override fun onSuccess(inputStream: InputStream?) {
-                try {
-                    if (inputStream != null) {
-                        val fileName = url.substringAfter('/')
-                        val outputFile = File(destinationDir, fileName)
-
-                        val fileOutputStream = FileOutputStream(outputFile)
-                        val buffer = ByteArray(1024)
-                        var bytesRead: Int
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            fileOutputStream.write(buffer, 0, bytesRead)
-                        }
-                        fileOutputStream.close()
-                        inputStream.close()
-
-                        // Now, if you want to make this file visible in the system's MediaStore, you can use the following code:
-
-                        // Create a ContentValues object to insert the file into MediaStore
-                        val contentValues = ContentValues().apply {
-                            put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-                            put(MediaStore.Images.Media.MIME_TYPE, "application/octet-stream")
-                            put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-                        }
-
-                        // Insert the file into MediaStore
-                        val contentResolver = context.contentResolver
-                        val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-
-                        // Write the downloaded file into the MediaStore content URI
-                        val outputStream = uri?.let { contentResolver.openOutputStream(it) }
-                        outputStream?.use { output ->
-                            FileInputStream(outputFile).use { input ->
-                                input.copyTo(output)
-                            }
-                        }
-
-                        // Finally, you may want to notify the MediaScanner to scan the new file
-                        context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri))
-                    }
-                } catch (e: IOException) {
-                    println("Error saving file: ${e.message}")
-                }
-            }
-
-            override fun onError(error: Throwable) {
-                println("Error: ${error.message}")
-            }
-        })
-    }*/
-/*    suspend fun downloadFile(url: String) {
-        val apiClient = ApiClient()
-
-        val destinationDir = File(Environment.getExternalStorageDirectory(), "storage_benjamin")
-
-        destinationDir.mkdirs() //create folder with parents
-
-        apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
-            override fun onSuccess(inputStream: InputStream?) {
-                try {
-                    if (inputStream != null) {
-                        val fileName = url.substringAfter('/')
-                        val outputFile = File(destinationDir, fileName)
-
-                        val fileOutputStream = FileOutputStream(outputFile)
-                        val buffer = ByteArray(1024)
-                        var bytesRead: Int
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            fileOutputStream.write(buffer, 0, bytesRead)
-                        }
-                        fileOutputStream.close()
-                        inputStream.close()
-                    }
-                } catch (e: IOException) {
-                    println("Error saving file: ${e.message}")
-                }
-            }
-
-            override fun onError(error: Throwable) {
-                println("Error: ${error.message}")
-            }
-        })
-    }*/
-
-    /*suspend fun downloadFile(url: String) {
-        val apiClient = ApiClient()
-
-        // Define the custom folder name
-        val customFolderName = "MyCustomFolder" // Replace with your desired folder name
-
-        // Get the external storage directory
-        val externalStorageDirectory = File(Environment.getExternalStorageDirectory(), customFolderName)
-
-        // Ensure that the custom folder and its parent directories exist
-        externalStorageDirectory.mkdirs()
-
-        apiClient.requestInputStream(url, object : ApiClient.ApiCallback {
-            override fun onSuccess(inputStream: InputStream?) {
-                try {
-                    if (inputStream != null) {
-                        val fileName = url.substringAfter('/')
-                        val outputFile = File(externalStorageDirectory, fileName)
-
-                        // Create an output stream to write the input stream to the file
-                        val fileOutputStream = FileOutputStream(outputFile)
-                        val buffer = ByteArray(1024)
-                        var bytesRead: Int
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            fileOutputStream.write(buffer, 0, bytesRead)
-                        }
-                        fileOutputStream.close()
-                        inputStream.close()
-                        println("File saved to ${outputFile.absolutePath}")
-                    }
-                } catch (e: IOException) {
-                    println("Error saving file: ${e.message}")
-                }
-            }
-
-            override fun onError(error: Throwable) {
-                println("Error: ${error.message}")
-            }
-        })
-    }*/
+        }
+    }
 
     private fun convertNodeDataToJson(node: NodeItem): String {
         val gson = Gson()
         return gson.toJson(node)
     }
-
 
     private fun convertInputStreamToString(inputStream: InputStream?): String {
         val reader = BufferedReader(InputStreamReader(inputStream))

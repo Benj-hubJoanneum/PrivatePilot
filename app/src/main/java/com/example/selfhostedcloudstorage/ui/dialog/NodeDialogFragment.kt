@@ -20,6 +20,7 @@ class NodeDialogFragment(
 
     private val nodeRepository = NodeRepository.getInstance()
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,9 +34,15 @@ class NodeDialogFragment(
         binding.closeButton.setOnClickListener {
             dismiss()
         }
-        binding.downloadButton.setOnClickListener {
-            nodeRepository.downloadFile(node.path, context)
+
+        binding.download.setOnClickListener {
+            nodeRepository.downloadFile(context, node.path)
+            switchButton() // change to success
         }
+        binding.openFile.setOnClickListener{
+            nodeRepository.openFile(context, node.path)
+        }
+        switchButton()
         return root
     }
 
@@ -54,5 +61,15 @@ class NodeDialogFragment(
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    fun switchButton(){
+        if (nodeRepository.fileExist(context, node.path)){
+            binding.download.visibility = View.GONE
+            binding.openFile.visibility = View.VISIBLE
+        } else {
+            binding.download.visibility = View.VISIBLE
+            binding.openFile.visibility = View.GONE
+        }
     }
 }
