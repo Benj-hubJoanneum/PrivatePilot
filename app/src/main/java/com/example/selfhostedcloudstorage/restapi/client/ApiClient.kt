@@ -16,7 +16,7 @@ class ApiClient {
         .readTimeout(10, TimeUnit.SECONDS)
         .build()
 
-    private val baseUrl = "http://91.113.55.194:8000/storage_benjamin"
+    private val baseUrl = "http://91.114.196.254:8000/storage_benjamin"
     fun requestInputStream(url: String, callback: ApiCallback) {
         val request = Request.Builder()
             .url(baseUrl + url)
@@ -37,7 +37,6 @@ class ApiClient {
             }
         })
     }
-
 
     fun sendOutputStream(url: String, outputStream: OutputStream, callback: ApiCallback) {
         val request = Request.Builder()

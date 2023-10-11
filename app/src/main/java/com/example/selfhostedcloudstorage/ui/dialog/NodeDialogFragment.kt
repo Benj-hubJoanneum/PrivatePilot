@@ -37,11 +37,11 @@ class NodeDialogFragment(
 
         binding.download.setOnClickListener {
             nodeRepository.downloadFile(context, node.path)
-            switchButton() // change to success
         }
         binding.openFile.setOnClickListener{
             nodeRepository.openFile(context, node.path)
         }
+
         switchButton()
         return root
     }

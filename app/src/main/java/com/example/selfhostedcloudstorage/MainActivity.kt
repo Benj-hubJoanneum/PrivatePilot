@@ -3,6 +3,7 @@ package com.example.selfhostedcloudstorage
 import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
@@ -32,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
     private val nodeRepository = NodeRepository.getInstance()
+    var selectedFileUri: Uri? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
-        binding.appBarMain.fab.setOnClickListener { view -> // button to add file
+        binding.appBarMain.fab.setOnClickListener { view ->
             // Open a file picker dialog
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)

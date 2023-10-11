@@ -118,7 +118,7 @@ class NodeRepository private constructor() : ControllerListener {
     }
 
     fun fileExist(context: Context, url: String): Boolean {
-        return controllerNode.fileExist(context, url)
+        return controllerNode.fileExist(context, url).exists()
     }
 
     fun openFile(context: Context, filePath: String) {

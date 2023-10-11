@@ -70,8 +70,7 @@ class ControllerNode {
                         directoryList.addAll(data.items.filter { it.type == "folder" }.map {
                             DirectoryItem(it.name, "$url/${it.name}")
                         })
-                        _nodeList =
-                            data.items.map { NodeItem(it.name, "$url/${it.name}") }.toMutableSet()
+                        _nodeList = data.items.map { NodeItem(it.name, "$url/${it.name}") }.toMutableSet()
                         listener?.onSourceChanged()
                     } catch (e: IOException) {
                         println("Error parsing JSON: ${e.message}")
@@ -84,7 +83,7 @@ class ControllerNode {
             })
         }
     }
-    suspend fun updateNodes(url: String) {
+    suspend fun updateNodes(url: String) {6
 
     }
     fun deleteNodes(url: String) {
@@ -107,34 +106,15 @@ class ControllerNode {
             override fun onSuccess(inputStream: InputStream?) {
                 try {
                     if (inputStream != null) {
-                        val fileName = url.substringAfter('/')
-                        val filepath = url.substringBeforeLast('/')
+                        val outputFile = fileExist(context, url)
 
-                        //public data
-                        var file = context.getExternalFilesDir("public_$filepath")
-                        file?.mkdirs()
-
-                        var outputFile = File(file, fileName)
-
-                        var fileOutputStream = FileOutputStream(outputFile)
-                        var buffer = ByteArray(1024)
+                        val fileOutputStream = FileOutputStream(outputFile)
+                        val buffer = ByteArray(1024)
                         var bytesRead: Int
                         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                             fileOutputStream.write(buffer, 0, bytesRead)
                         }
 
-                        //private data
-                        val wrapper = ContextWrapper(context)
-                        file = wrapper.getDir("private_$filepath", Context.MODE_PRIVATE )
-                        file.mkdirs()
-                        outputFile = File(file, fileName)
-
-                        fileOutputStream = FileOutputStream(outputFile)
-                        buffer = ByteArray(1024)
-
-                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                            fileOutputStream.write(buffer, 0, bytesRead)
-                        }
                         fileOutputStream.close()
                         inputStream.close()
                     }
@@ -149,39 +129,21 @@ class ControllerNode {
         })
     }
 
-    fun fileExist(context: Context, url: String): Boolean {
-        val fileName = url.substringAfter('/')
+    fun fileExist(context: Context, url: String): File {
+        val fileName = url.substringAfterLast('/')
         val filepath = url.substringBeforeLast('/')
+        val dirPath = "public_$filepath"
 
-        //public data
-        var file = context.getExternalFilesDir("public_$filepath")
-        var outputFile = File(file, fileName)
+        val file = context.getExternalFilesDir(dirPath)
+        file?.mkdirs()
 
-        if (outputFile.exists())
-            Log.d("FileExists", "File with name '$fileName' exists in directory '${outputFile.path}'")
-
-
-        //private data
-        val wrapper = ContextWrapper(context)
-        file = wrapper.getDir("private_$filepath", Context.MODE_PRIVATE )
-        outputFile = File(file, fileName)
-
-        if (outputFile.exists())
-            Log.d("FileExists", "File with name '$fileName' exists in directory '${outputFile.path}'")
-
-        return file.exists()
+        return File(file, fileName)
     }
 
     fun openFile(context: Context, url: String) {
-        val fileName = url.substringAfter('/')
-        val filepath = url.substringBeforeLast('/')
-
-        //public data
-        var path = context.getExternalFilesDir("public_$filepath")
-        var file = File(path, fileName)
+        val file = fileExist(context, url)
 
         if (file.exists()) {
-            //val uri = Uri.fromFile(file)
             val mimeType = context.contentResolver.getType(Uri.fromFile(file))
             val intent = Intent(Intent.ACTION_VIEW)
             val uri = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".provider", file)
