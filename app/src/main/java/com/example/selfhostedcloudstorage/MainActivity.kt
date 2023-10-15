@@ -2,9 +2,13 @@ package com.example.selfhostedcloudstorage
 
 import android.app.Activity
 import android.app.SearchManager
+import android.content.ContentResolver
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.view.ActionMode
 import android.view.Menu
 import android.widget.ImageView
@@ -12,6 +16,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -26,9 +31,12 @@ import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavModel
 import com.google.android.material.navigation.NavigationView
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
@@ -36,20 +44,30 @@ class MainActivity : AppCompatActivity() {
     var selectedFileUri: Uri? = null
 
 
+
+    private val openFileLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                selectedFileUri = result.data?.data
+                if (selectedFileUri != null) {
+                    getThisFile(selectedFileUri)
+                    }
+                }
+            }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)
-
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
         binding.appBarMain.fab.setOnClickListener { view ->
-            // Open a file picker dialog
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "*/*"  // You can specify a MIME type if needed
+            intent.type = "*/*"
+
             openFileLauncher.launch(intent)
         }
 
@@ -122,13 +140,13 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                return true //no search until finished
+                return true
             }
         })
 
         searchView.setOnCloseListener {
             nodeRepository.undoSearch()
-            true // Return true to consume the event
+            true
         }
 
         return true
@@ -158,17 +176,26 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
-    private val openFileLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                // Handle the selected file here
-                val selectedFileUri = result.data?.data
-                if (selectedFileUri != null) {
-                    // Use the selectedFileUri to access the chosen file
-                    // You can use the content resolver to read data from the selected file
-                    val inputStream = contentResolver.openInputStream(selectedFileUri)
-                    // Process the file using the inputStream
+
+    private fun getThisFile(uri: Uri?){
+        val findFile = contentResolver.openFileDescriptor(selectedFileUri!!, "r", null)
+        val file = File(cacheDir, contentResolver.getFileName(selectedFileUri))
+        val inputStream = FileInputStream(findFile?.fileDescriptor)
+        val outputStream = FileOutputStream(file)
+        inputStream.copyTo(outputStream)
+    }
+    private fun ContentResolver.getFileName(uri: Uri?): String {
+        uri ?: return ""
+
+        val cursor = query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex != -1) {
+                    return it.getString(nameIndex)
                 }
             }
         }
+        return ""
+    }
 }

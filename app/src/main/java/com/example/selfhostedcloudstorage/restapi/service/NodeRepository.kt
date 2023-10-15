@@ -15,6 +15,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
 
 class NodeRepository private constructor() : ControllerListener {
     companion object {
@@ -57,9 +59,16 @@ class NodeRepository private constructor() : ControllerListener {
         listeners.add(repositoryListener)
     }
 
-    fun createNode(path: String, node: NodeItem) {
+    fun createNode(path: String, file: File) {
         CoroutineScope(Dispatchers.IO).launch {
-            controllerNode.createNodes(path, node)
+            controllerNode.createNodes(path, file)
+            onSourceChanged()
+        }
+    }
+
+    fun createNode(path: String, inputStream: InputStream) {
+        CoroutineScope(Dispatchers.IO).launch {
+            controllerNode.createNodes(path, inputStream)
             onSourceChanged()
         }
     }

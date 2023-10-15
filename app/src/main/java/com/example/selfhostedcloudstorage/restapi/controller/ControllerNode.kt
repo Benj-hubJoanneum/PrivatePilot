@@ -1,11 +1,8 @@
 package com.example.selfhostedcloudstorage.restapi.controller
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
-import android.util.Log
 import androidx.core.content.FileProvider
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
@@ -22,7 +19,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
-import kotlin.math.log
 
 class ControllerNode {
 
@@ -31,11 +27,11 @@ class ControllerNode {
 
     private var listener: ControllerListener? = null
 
-    suspend fun createNodes(url: String, nodeData: NodeItem) {
+    suspend fun createNodes(url: String, file: File) {
         val apiClient = ApiClient()
 
         // Convert your nodeData object to JSON, assuming you have a function for that
-        val jsonNodeData = convertNodeDataToJson(nodeData)
+        val jsonNodeData = convertFileToJson(file)
 
         // Convert the JSON string to bytes
         val jsonBytes = jsonNodeData.toByteArray(Charsets.UTF_8)
@@ -47,6 +43,19 @@ class ControllerNode {
         }
 
         apiClient.sendOutputStream(url, outputStream, object : ApiClient.ApiCallback {
+            override fun onSuccess(inputStream: InputStream?) {
+                // Handle success, if needed (POST request may or may not return a response body)
+            }
+
+            override fun onError(error: Throwable) {
+                println("Error: ${error.message}")
+            }
+        })
+    }
+    suspend fun createNodes(url: String, inputStream: InputStream) {
+        val apiClient = ApiClient()
+
+        apiClient.sendInputStreamToServer(url, inputStream, object : ApiClient.ApiCallback {
             override fun onSuccess(inputStream: InputStream?) {
                 // Handle success, if needed (POST request may or may not return a response body)
             }
@@ -106,7 +115,7 @@ class ControllerNode {
             override fun onSuccess(inputStream: InputStream?) {
                 try {
                     if (inputStream != null) {
-                        val outputFile = fileExist(context, url)
+                        val outputFile = fileExist(context, url, true)
 
                         val fileOutputStream = FileOutputStream(outputFile)
                         val buffer = ByteArray(1024)
@@ -129,13 +138,15 @@ class ControllerNode {
         })
     }
 
-    fun fileExist(context: Context, url: String): File {
+    fun fileExist(context: Context, url: String, write: Boolean = false): File {
         val fileName = url.substringAfterLast('/')
         val filepath = url.substringBeforeLast('/')
         val dirPath = "public_$filepath"
 
         val file = context.getExternalFilesDir(dirPath)
-        file?.mkdirs()
+
+        if (write)
+            file?.mkdirs()
 
         return File(file, fileName)
     }
@@ -159,9 +170,9 @@ class ControllerNode {
         }
     }
 
-    private fun convertNodeDataToJson(node: NodeItem): String {
+    private fun convertFileToJson(file: File): String {
         val gson = Gson()
-        return gson.toJson(node)
+        return gson.toJson(file)
     }
 
     private fun convertInputStreamToString(inputStream: InputStream?): String {

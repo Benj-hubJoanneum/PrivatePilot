@@ -2,6 +2,7 @@ package com.example.selfhostedcloudstorage.restapi.client
 
 import android.content.Context
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -12,11 +13,11 @@ import java.util.concurrent.TimeUnit
 class ApiClient {
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .readTimeout(5, TimeUnit.SECONDS)
         .build()
 
-    private val baseUrl = "http://91.114.196.254:8000/storage_benjamin"
+    private val baseUrl = "http://91.114.199.59:8000/storage_benjamin"
     fun requestInputStream(url: String, callback: ApiCallback) {
         val request = Request.Builder()
             .url(baseUrl + url)
@@ -59,6 +60,31 @@ class ApiClient {
                     callback.onSuccess(null) // Success, no input stream expected
                 } else {
                     callback.onError(IOException("Request failed with code ${response.code}"))
+                }
+            }
+        })
+    }
+    fun sendInputStreamToServer(url: String, inputStream: InputStream, callback: ApiCallback) {
+        val request = Request.Builder()
+            .url(baseUrl + url)
+            .post(
+                RequestBody.create(
+                    "application/octet-stream".toMediaTypeOrNull(),
+                    inputStream.readBytes()
+                )
+            )
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle the failure
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    // Handle a successful response
+                } else {
+                    // Handle an unsuccessful response
                 }
             }
         })
