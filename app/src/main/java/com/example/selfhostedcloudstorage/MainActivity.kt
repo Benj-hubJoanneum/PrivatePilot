@@ -43,15 +43,12 @@ class MainActivity : AppCompatActivity() {
     private val nodeRepository = NodeRepository.getInstance()
     var selectedFileUri: Uri? = null
 
-
-
     private val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 selectedFileUri = result.data?.data
-                if (selectedFileUri != null) {
-                    getThisFile(selectedFileUri)
-                    }
+                val file = getThisFile(selectedFileUri)
+                nodeRepository.createNode("", file)
                 }
             }
 
@@ -177,13 +174,21 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    private fun getThisFile(uri: Uri?){
-        val findFile = contentResolver.openFileDescriptor(selectedFileUri!!, "r", null)
-        val file = File(cacheDir, contentResolver.getFileName(selectedFileUri))
-        val inputStream = FileInputStream(findFile?.fileDescriptor)
-        val outputStream = FileOutputStream(file)
-        inputStream.copyTo(outputStream)
+    private fun getThisFile(uri: Uri?): File {
+        uri ?: return File("")
+
+        val inputStream = contentResolver.openInputStream(uri)
+        val file = File(cacheDir, contentResolver.getFileName(uri))
+
+        inputStream.use { input ->
+            FileOutputStream(file).use { output ->
+                input?.copyTo(output)
+            }
+        }
+
+        return file
     }
+
     private fun ContentResolver.getFileName(uri: Uri?): String {
         uri ?: return ""
 

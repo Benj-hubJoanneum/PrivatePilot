@@ -1,13 +1,10 @@
 package com.example.selfhostedcloudstorage.restapi.client
 
-import android.content.Context
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 import java.util.concurrent.TimeUnit
 
 class ApiClient {
@@ -39,15 +36,13 @@ class ApiClient {
         })
     }
 
-    fun sendOutputStream(url: String, outputStream: OutputStream, callback: ApiCallback) {
+    fun sendOutputStream(url: String, file: File, callback: ApiCallback) {
         val request = Request.Builder()
             .url(baseUrl + url)
-            .post(
-                RequestBody.create(
-                    null,
-                    outputStream.toString()
-                )
-            ) // Replace null with appropriate media type
+            .post(MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.name, RequestBody.create("application/octet-stream".toMediaTypeOrNull(), file))
+                .build())
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -57,34 +52,9 @@ class ApiClient {
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
-                    callback.onSuccess(null) // Success, no input stream expected
+                    callback.onSuccess(null)
                 } else {
                     callback.onError(IOException("Request failed with code ${response.code}"))
-                }
-            }
-        })
-    }
-    fun sendInputStreamToServer(url: String, inputStream: InputStream, callback: ApiCallback) {
-        val request = Request.Builder()
-            .url(baseUrl + url)
-            .post(
-                RequestBody.create(
-                    "application/octet-stream".toMediaTypeOrNull(),
-                    inputStream.readBytes()
-                )
-            )
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                // Handle the failure
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    // Handle a successful response
-                } else {
-                    // Handle an unsuccessful response
                 }
             }
         })

@@ -12,11 +12,11 @@ import com.example.selfhostedcloudstorage.restapi.model.MetadataResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okio.IOException
 import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
@@ -30,34 +30,10 @@ class ControllerNode {
     suspend fun createNodes(url: String, file: File) {
         val apiClient = ApiClient()
 
-        // Convert your nodeData object to JSON, assuming you have a function for that
-        val jsonNodeData = convertFileToJson(file)
 
-        // Convert the JSON string to bytes
-        val jsonBytes = jsonNodeData.toByteArray(Charsets.UTF_8)
-
-        // Create an OutputStream from the byte array
-        val outputStream = ByteArrayOutputStream()
-        withContext(Dispatchers.IO) {
-            outputStream.write(jsonBytes)
-        }
-
-        apiClient.sendOutputStream(url, outputStream, object : ApiClient.ApiCallback {
+        apiClient.sendOutputStream(url, file, object : ApiClient.ApiCallback {
             override fun onSuccess(inputStream: InputStream?) {
-                // Handle success, if needed (POST request may or may not return a response body)
-            }
-
-            override fun onError(error: Throwable) {
-                println("Error: ${error.message}")
-            }
-        })
-    }
-    suspend fun createNodes(url: String, inputStream: InputStream) {
-        val apiClient = ApiClient()
-
-        apiClient.sendInputStreamToServer(url, inputStream, object : ApiClient.ApiCallback {
-            override fun onSuccess(inputStream: InputStream?) {
-                // Handle success, if needed (POST request may or may not return a response body)
+                TODO("Not yet implemented")
             }
 
             override fun onError(error: Throwable) {
