@@ -14,12 +14,13 @@ class ApiClient {
         .readTimeout(5, TimeUnit.SECONDS)
         .build()
 
-    private val baseUrl = "http://91.114.199.59:8000/storage_benjamin"
-    fun requestInputStream(url: String, callback: ApiCallback) {
-        val request = Request.Builder()
-            .url(baseUrl + url)
-            .build()
+    private val baseUrl = "http://62.47.7.239:8000/storage_benjamin"
+    private val baseRequest = {
+            url: String -> Request.Builder()
+        .url(baseUrl + url)
+    }
 
+    private fun connection(request: Request, callback: ApiCallback){
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback.onError(e)
@@ -35,50 +36,29 @@ class ApiClient {
             }
         })
     }
+    fun requestInputStream(url: String, callback: ApiCallback) {
+        val request = baseRequest(url).build()
 
-    fun sendOutputStream(url: String, file: File, callback: ApiCallback) {
-        val request = Request.Builder()
-            .url(baseUrl + url)
+        connection(request, callback)
+    }
+
+    fun requestPostFile(url: String, file: File, callback: ApiCallback) {
+        val request = baseRequest(url)
             .post(MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file", file.name, RequestBody.create("application/octet-stream".toMediaTypeOrNull(), file))
                 .build())
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback.onError(e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    callback.onSuccess(null)
-                } else {
-                    callback.onError(IOException("Request failed with code ${response.code}"))
-                }
-            }
-        })
+        connection(request, callback)
     }
 
     fun requestDelete(url: String, callback: ApiCallback) {
-        val request = Request.Builder()
-            .url(baseUrl + url)
+        val request = baseRequest(url)
             .delete()
             .build()
 
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                callback.onError(e)
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    callback.onSuccess(null) // Success, no input stream expected
-                } else {
-                    callback.onError(IOException("Request failed with code ${response.code}"))
-                }
-            }
-        })
+        connection(request, callback)
     }
 
     interface ApiCallback {

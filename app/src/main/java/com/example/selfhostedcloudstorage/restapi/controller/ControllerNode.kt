@@ -1,8 +1,13 @@
 package com.example.selfhostedcloudstorage.restapi.controller
 
+import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
@@ -14,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -24,16 +28,16 @@ class ControllerNode {
 
     var directoryList = mutableSetOf<DirectoryItem>()
     var _nodeList = mutableSetOf<INode>()
-
     private var listener: ControllerListener? = null
 
     suspend fun createNodes(url: String, file: File) {
         val apiClient = ApiClient()
 
 
-        apiClient.sendOutputStream(url, file, object : ApiClient.ApiCallback {
+        apiClient.requestPostFile(url, file, object : ApiClient.ApiCallback {
             override fun onSuccess(inputStream: InputStream?) {
-                TODO("Not yet implemented")
+                //TODO("Not yet implemented")
+                println("successful")//reload display
             }
 
             override fun onError(error: Throwable) {
@@ -68,9 +72,10 @@ class ControllerNode {
             })
         }
     }
-    suspend fun updateNodes(url: String) {6
+    suspend fun updateNodes(url: String) {
 
     }
+
     fun deleteNodes(url: String) {
         val apiClient = ApiClient()
 

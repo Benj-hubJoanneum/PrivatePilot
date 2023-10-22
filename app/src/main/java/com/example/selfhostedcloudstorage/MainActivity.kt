@@ -2,13 +2,9 @@ package com.example.selfhostedcloudstorage
 
 import android.app.Activity
 import android.app.SearchManager
-import android.content.ContentResolver
 import android.content.Intent
-import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.provider.OpenableColumns
 import android.view.ActionMode
 import android.view.Menu
 import android.widget.ImageView
@@ -16,7 +12,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -31,27 +26,20 @@ import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavModel
 import com.google.android.material.navigation.NavigationView
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.InputStream
 
 class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
     private val nodeRepository = NodeRepository.getInstance()
-    var selectedFileUri: Uri? = null
-
-    private val openFileLauncher: ActivityResultLauncher<Intent> =
+    val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                selectedFileUri = result.data?.data
-                val file = getThisFile(selectedFileUri)
-                nodeRepository.createNode("", file)
-                }
+                nodeRepository.selectedFileUri = result.data?.data
+                val file = nodeRepository.getThisFile(nodeRepository.selectedFileUri, this)
+                nodeRepository.createNode(file)
             }
-
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -61,11 +49,7 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
         binding.appBarMain.fab.setOnClickListener { view ->
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "*/*"
-
-            openFileLauncher.launch(intent)
+            nodeRepository.launchFileSelection(openFileLauncher)
         }
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
@@ -172,35 +156,5 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    private fun getThisFile(uri: Uri?): File {
-        uri ?: return File("")
-
-        val inputStream = contentResolver.openInputStream(uri)
-        val file = File(cacheDir, contentResolver.getFileName(uri))
-
-        inputStream.use { input ->
-            FileOutputStream(file).use { output ->
-                input?.copyTo(output)
-            }
-        }
-
-        return file
-    }
-
-    private fun ContentResolver.getFileName(uri: Uri?): String {
-        uri ?: return ""
-
-        val cursor = query(uri, null, null, null, null)
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                if (nameIndex != -1) {
-                    return it.getString(nameIndex)
-                }
-            }
-        }
-        return ""
     }
 }
