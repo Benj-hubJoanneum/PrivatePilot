@@ -57,13 +57,11 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         displayedList = fullFileList.filter { node ->
             (node is NodeItem) && node.name.contains(query, ignoreCase = true)
         }.toMutableList()
-        notifyListeners()
     }
 
     fun undoSearch() {
         displayedList.clear()
         displayedList.addAll(fullFileList)
-        notifyListeners()
     }
 
     fun addListener(repositoryListener: RepositoryListener) {
@@ -76,14 +74,12 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
             controllerNode.createNodes(
                 path,
                 file)
-            onControllerSourceChanged()
         }
     }
 
     fun readNode(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.requestNodes(path)
-            onControllerSourceChanged()
         }
     }
 
@@ -93,7 +89,6 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     fun deleteNode(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.deleteNodes(path)
-            onControllerSourceChanged()
         }
     }
 

@@ -76,7 +76,6 @@ abstract class BaseAdapter(
             nodeRepository.deleteNode(itemList[position].path)
         }
         selectedItems.clear()
-        nodeRepository.onControllerSourceChanged()
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {
