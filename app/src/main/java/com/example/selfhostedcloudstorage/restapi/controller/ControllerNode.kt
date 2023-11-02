@@ -1,13 +1,8 @@
 package com.example.selfhostedcloudstorage.restapi.controller
 
-import android.app.Activity
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.provider.OpenableColumns
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
@@ -17,6 +12,7 @@ import com.example.selfhostedcloudstorage.restapi.model.MetadataResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.Response
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -96,15 +92,25 @@ class ControllerNode {
             override fun onSuccess(inputStream: InputStream?) {
                 try {
                     if (inputStream != null) {
+
+                        //check if file exists
                         val outputFile = fileExist(context, url, true)
 
+                        // create write to phone instance
                         val fileOutputStream = FileOutputStream(outputFile)
+
+                        // chunkable size
                         val buffer = ByteArray(1024)
+
+                        // "boolean" to find start/end
                         var bytesRead: Int
+
+                        // read received bytes
                         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                             fileOutputStream.write(buffer, 0, bytesRead)
                         }
 
+                        // close instances
                         fileOutputStream.close()
                         inputStream.close()
                     }
@@ -165,6 +171,7 @@ class ControllerNode {
         }
         return stringBuilder.toString()
     }
+
     private fun String.parseItemsFromResponse(): MetadataResponse {
         return try {
             Gson().fromJson(this, MetadataResponse::class.java)
@@ -172,7 +179,12 @@ class ControllerNode {
             MetadataResponse(listOf())
         }
     }
+
     fun addListener(controllerListener: ControllerListener) {
         listener = controllerListener
+    }
+
+    interface ControllerListener {
+        fun onSourceChanged()
     }
 }

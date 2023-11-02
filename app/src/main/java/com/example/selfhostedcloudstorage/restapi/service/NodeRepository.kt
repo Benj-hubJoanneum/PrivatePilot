@@ -10,15 +10,16 @@ import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
-import com.example.selfhostedcloudstorage.restapi.controller.ControllerListener
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerNode
+import com.example.selfhostedcloudstorage.restapi.controller.ControllerSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
-class NodeRepository private constructor() : ControllerListener {
+class NodeRepository() : ControllerSocket.ControllerCallback {
+
     companion object {
         @Volatile
         private var instance: NodeRepository? = null
@@ -33,15 +34,14 @@ class NodeRepository private constructor() : ControllerListener {
     internal var currentPath: MutableSet<DirectoryItem> = mutableSetOf()
     internal var directoryList: MutableSet<DirectoryItem> = mutableSetOf()
     internal var displayedList: MutableList<INode> = mutableListOf()
-    private var controllerNode = ControllerNode()
-    private var listeners: MutableSet<RepositoryListener> = mutableSetOf()
+    private var controllerNode = ControllerSocket(this)
+    private var listeners: MutableSet<RepositoryListener> = mutableSetOf() //could save doubles
     var selectedFileUri: Uri? = null
 
 
     init {
-        controllerNode.addListener(this)
         CoroutineScope(Dispatchers.IO).launch {
-            controllerNode.readNodes("")
+            readNode("")
         }
     }
 
@@ -76,14 +76,14 @@ class NodeRepository private constructor() : ControllerListener {
             controllerNode.createNodes(
                 path,
                 file)
-            onSourceChanged()
+            onControllerSourceChanged()
         }
     }
 
     fun readNode(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            controllerNode.readNodes(path)
-            onSourceChanged()
+            controllerNode.requestNodes(path)
+            onControllerSourceChanged()
         }
     }
 
@@ -93,21 +93,14 @@ class NodeRepository private constructor() : ControllerListener {
     fun deleteNode(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.deleteNodes(path)
-            onSourceChanged()
+            onControllerSourceChanged()
         }
     }
 
     fun downloadFile(context: Context, path: String) {
         CoroutineScope(Dispatchers.IO).launch {
-            controllerNode.downloadFile(path, context)
+            controllerNode.downloadFile(path)
         }
-    }
-
-    override fun onSourceChanged() {
-        fullFileList = controllerNode._nodeList
-        directoryListAddByParent(controllerNode.directoryList)
-        displayListSorting()
-        notifyListeners()
     }
 
     private fun notifyListeners() {
@@ -170,5 +163,16 @@ class NodeRepository private constructor() : ControllerListener {
             }
         }
         return ""
+    }
+
+    override fun onControllerSourceChanged() {
+        fullFileList = controllerNode.nodeList
+        directoryListAddByParent(controllerNode.directoryList)
+        displayListSorting()
+        notifyListeners()
+    }
+
+    interface RepositoryListener {
+        fun onSourceChanged()
     }
 }

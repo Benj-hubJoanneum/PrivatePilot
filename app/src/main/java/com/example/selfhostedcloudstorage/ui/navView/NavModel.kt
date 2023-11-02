@@ -6,10 +6,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
-import com.example.selfhostedcloudstorage.restapi.service.RepositoryListener
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
-class NavModel : ViewModel(), RepositoryListener {
+class NavModel : ViewModel(), NodeRepository.RepositoryListener {
     private val _selectedFolder = MutableLiveData<DirectoryItemViewModel?>()
 
     private val _text = MutableLiveData<String>().apply {
@@ -42,13 +41,15 @@ class NavModel : ViewModel(), RepositoryListener {
             Log.e(ContentValues.TAG, "Error loading folders: ${e.message}")
         }
     }
-    override fun onSourceChanged() {
-        loadFolderList()
-    }
+
     fun setSelectedFolder(folder: DirectoryItemViewModel?) { // Corrected function name here
         if (folder != null) {
             _selectedFolder.value = folder
             nodeRepository.readNode(folder.path)
         }
+    }
+
+    override fun onSourceChanged() {
+        loadFolderList()
     }
 }

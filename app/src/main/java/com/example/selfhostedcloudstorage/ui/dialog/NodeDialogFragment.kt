@@ -11,10 +11,10 @@ import com.example.selfhostedcloudstorage.databinding.NodeDialogBinding
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
-class NodeDialogFragment(
+class NodeDialogFragment (
     private val context: Context,
     private val node: NodeItemViewModel
-) : DialogFragment() {
+) : DialogFragment(), NodeRepository.RepositoryListener  {
     private var _binding: NodeDialogBinding? = null
     private val binding get() = _binding!!
 
@@ -71,5 +71,9 @@ class NodeDialogFragment(
             binding.download.visibility = View.VISIBLE
             binding.openFile.visibility = View.GONE
         }
+    }
+
+    override fun onSourceChanged() {
+        TODO("Not yet implemented")
     }
 }

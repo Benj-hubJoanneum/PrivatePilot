@@ -20,7 +20,7 @@ import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
 abstract class BaseAdapter(
     protected var itemList: List<NodeItemViewModel>,
     protected val mainActivity: MainActivity
-) : RecyclerView.Adapter<BaseAdapter.BaseViewHolder>(), ActionMode.Callback {
+) : RecyclerView.Adapter<BaseAdapter.BaseViewHolder>(), ActionMode.Callback  {
 
     protected val selectedItems = mutableListOf<Int>()
     protected var actionMode: ActionMode? = null
@@ -76,7 +76,7 @@ abstract class BaseAdapter(
             nodeRepository.deleteNode(itemList[position].path)
         }
         selectedItems.clear()
-        nodeRepository.onSourceChanged()
+        nodeRepository.onControllerSourceChanged()
     }
 
     override fun onDestroyActionMode(mode: ActionMode?) {

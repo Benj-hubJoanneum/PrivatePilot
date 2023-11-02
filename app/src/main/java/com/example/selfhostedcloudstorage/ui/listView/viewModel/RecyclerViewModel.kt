@@ -8,9 +8,8 @@ import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
-import com.example.selfhostedcloudstorage.restapi.service.RepositoryListener
 
-class RecyclerViewModel : ViewModel(), RepositoryListener {
+class RecyclerViewModel : ViewModel(), NodeRepository.RepositoryListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"

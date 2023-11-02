@@ -8,10 +8,9 @@ import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
-import com.example.selfhostedcloudstorage.restapi.service.RepositoryListener
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
-class TreeViewModel : ViewModel(), RepositoryListener {
+class TreeViewModel : ViewModel(), NodeRepository.RepositoryListener  {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"

@@ -15,10 +15,7 @@ class ApiClient {
         .build()
 
     private val baseUrl = "http://62.47.7.239:8000/storage_benjamin"
-    private val baseRequest = {
-            url: String -> Request.Builder()
-        .url(baseUrl + url)
-    }
+    private val baseRequest = { url: String -> Request.Builder().url(baseUrl + url) }
 
     private fun connection(request: Request, callback: ApiCallback){
         client.newCall(request).enqueue(object : Callback {
