@@ -19,7 +19,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
-class ControllerSocket(private val nodeRepository: NodeRepository, private val callback: ControllerCallback) :
+class ControllerSocket(private val context: Context, private val nodeRepository: NodeRepository, private val callback: ControllerCallback) :
     WebSocketClient.WebSocketCallback {
     private val webSocketClient: WebSocketClient = WebSocketClient(this)
 
@@ -66,10 +66,9 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
 
     fun downloadFile(url: String) {
         sendToServer("GET", url)
-
     }
 
-    fun fileExist(context: Context, url: String, write: Boolean = false): File {
+    fun fileExist(url: String, write: Boolean = false): File {
         val fileName = url.substringAfterLast('/')
         val filepath = url.substringBeforeLast('/')
         val dirPath = "public_$filepath"
@@ -82,8 +81,8 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         return File(file, fileName)
     }
 
-    fun openFile(context: Context, url: String) {
-        val file = fileExist(context, url)
+    fun openFile(url: String) {
+        val file = fileExist(url)
 
         if (file.exists()) {
             val mimeType = context.contentResolver.getType(Uri.fromFile(file))
@@ -128,6 +127,15 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
+    fun ByteString.parseBytesToFile(file: File) {
+        return try {
+            val byteArray = this.toByteArray()
+            file.writeBytes(byteArray)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
     fun File.parseFileToBytes(): ByteString? {
         return try {
             this.readBytes().toByteString()
@@ -137,12 +145,19 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    fun ByteString.parseBytesToFile(file: File) {
-        return try {
-            val byteArray = this.toByteArray()
-            file.writeBytes(byteArray)
+    fun saveFileToPhone(message: ByteString) {
+        try {
+            if (message.size > 0) {
+
+                // create file on phone
+                val outputFile = fileExist(nodeRepository.pointer, true)
+
+                // write data to file
+                message.parseBytesToFile(outputFile)
+
+            }
         } catch (e: IOException) {
-            e.printStackTrace()
+            println("Error saving file: ${e.message}")
         }
     }
 
@@ -157,28 +172,12 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         conn.send(requestMessage)
     }
 
-    fun saveFileToPhone(context: Context, message: ByteString) {
-        try {
-            if (message.size > 0) {
-
-                // create file on phone
-                val outputFile = fileExist(context, nodeRepository.pointer, true)
-
-                // write data to file
-                message.parseBytesToFile(outputFile)
-
-            }
-        } catch (e: IOException) {
-            println("Error saving file: ${e.message}")
-        }
-    }
-
     override fun onMessageReceived(message: String) {
         readNodes(message)
     }
 
     override fun onMessageReceived(message: ByteString) {
-        //saveFileToPhone(message)
+        saveFileToPhone(message)
     }
 
     interface ControllerCallback {

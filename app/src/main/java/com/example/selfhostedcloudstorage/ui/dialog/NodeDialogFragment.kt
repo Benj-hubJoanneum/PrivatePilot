@@ -14,12 +14,11 @@ import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 class NodeDialogFragment (
     private val context: Context,
     private val node: NodeItemViewModel
-) : DialogFragment(), NodeRepository.RepositoryListener  {
+) : DialogFragment() {
     private var _binding: NodeDialogBinding? = null
     private val binding get() = _binding!!
 
     private val nodeRepository = NodeRepository.getInstance()
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,10 +35,11 @@ class NodeDialogFragment (
         }
 
         binding.download.setOnClickListener {
-            nodeRepository.downloadFile(context, node.path)
+            nodeRepository.downloadFile(node.path)
         }
+
         binding.openFile.setOnClickListener{
-            nodeRepository.openFile(context, node.path)
+            nodeRepository.openFile(node.path)
         }
 
         switchButton()
@@ -71,9 +71,5 @@ class NodeDialogFragment (
             binding.download.visibility = View.VISIBLE
             binding.openFile.visibility = View.GONE
         }
-    }
-
-    override fun onSourceChanged() {
-        TODO("Not yet implemented")
     }
 }

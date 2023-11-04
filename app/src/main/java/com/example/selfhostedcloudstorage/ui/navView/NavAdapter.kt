@@ -12,7 +12,7 @@ import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewM
 
 class NavAdapter(
     private var itemList: List<DirectoryItemViewModel>,
-    private val navModel: NavModel
+    private val navViewModel: NavViewModel
 ) : RecyclerView.Adapter<NavAdapter.DirViewHolder>() {
 
     private var selectedFolder: DirectoryItemViewModel? = null
@@ -55,7 +55,7 @@ class NavAdapter(
 
     private fun selectedFolderChanged(selectedFolder: DirectoryItemViewModel) {
         this.selectedFolder = selectedFolder
-        navModel.setSelectedFolder(selectedFolder)
+        navViewModel.setSelectedFolder(selectedFolder)
         notifyDataSetChanged()
     }
 

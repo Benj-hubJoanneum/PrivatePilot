@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.selfhostedcloudstorage.model.INode
+import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
-class NavModel : ViewModel(), NodeRepository.RepositoryListener {
+class NavViewModel() : ViewModel(), NodeRepository.DirectoryRepositoryListener {
     private val _selectedFolder = MutableLiveData<DirectoryItemViewModel?>()
 
     private val _text = MutableLiveData<String>().apply {
@@ -21,21 +23,19 @@ class NavModel : ViewModel(), NodeRepository.RepositoryListener {
     private val nodeRepository = NodeRepository.getInstance()
 
     init {
-        loadFolderList()
+        loadFolderList(nodeRepository.directoryList)
         setSelectedFolder(_itemList.value?.firstOrNull()) // Corrected function name here
-        nodeRepository.addListener(this)
+        nodeRepository.addNodeListener(this)
     }
 
-    private fun loadFolderList() {
+    private fun loadFolderList(list: MutableSet<DirectoryItem>) {
         try {
-            val itemList = nodeRepository.directoryList
-
-            itemList.sortedWith(compareBy { it.parentFolder })
+            list.sortedWith(compareBy { it.parentFolder })
                 .map { DirectoryItemViewModel(it)
                     it.depth = it.path.count { it == '/' } - 1
                 }
 
-            _itemList.postValue(itemList.map { DirectoryItemViewModel(it) })
+            _itemList.postValue(list.map { DirectoryItemViewModel(it) })
 
         }catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading folders: ${e.message}")
@@ -49,7 +49,7 @@ class NavModel : ViewModel(), NodeRepository.RepositoryListener {
         }
     }
 
-    override fun onSourceChanged() {
-        loadFolderList()
+    override fun onSourceChanged(list: MutableSet<DirectoryItem>) {
+        loadFolderList(list)
     }
 }

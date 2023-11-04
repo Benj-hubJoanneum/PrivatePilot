@@ -17,16 +17,20 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
-class NodeRepository() : ControllerSocket.ControllerCallback {
+class NodeRepository private constructor(private val context: Context) : ControllerSocket.ControllerCallback {
 
     companion object {
         @Volatile
         private var instance: NodeRepository? = null
 
-        fun getInstance(): NodeRepository =
-            instance ?: synchronized(this) {
-                instance ?: NodeRepository().also { instance = it }
-            }
+        fun getInstance(): NodeRepository {
+            return instance ?: throw UninitializedPropertyAccessException("NodeRepository has not been initialized.")
+        }
+
+        fun initialize(context: Context) : NodeRepository {
+            instance = NodeRepository(context)
+            return instance as NodeRepository
+        }
     }
 
     //collections
@@ -35,8 +39,9 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     internal var directoryList: MutableSet<DirectoryItem> = mutableSetOf()
     internal var displayedList: MutableList<INode> = mutableListOf()
 
-    private var controllerNode = ControllerSocket(this, this)
-    private var listeners: MutableSet<RepositoryListener> = mutableSetOf() //could save doubles
+    private var controllerNode = ControllerSocket(context, this, this)
+    private var nodelisteners: MutableSet<NodeRepositoryListener> = mutableSetOf() //could save doubles
+    private var directoryListeners: MutableSet<DirectoryRepositoryListener> = mutableSetOf() //could save doubles
     var selectedFileUri: Uri? = null
 
 
@@ -65,8 +70,12 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         displayedList.addAll(fullFileList)
     }
 
-    fun addListener(repositoryListener: RepositoryListener) {
-        listeners.add(repositoryListener)
+    fun addNodeListener(repositoryListener: NodeRepositoryListener) {
+        nodelisteners.add(repositoryListener)
+    }
+
+    fun addNodeListener(repositoryListener: DirectoryRepositoryListener) {
+        directoryListeners.add(repositoryListener)
     }
 
     fun createNode(file: File) {
@@ -93,14 +102,15 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         }
     }
 
-    fun downloadFile(context: Context, path: String) {
+    fun downloadFile(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.downloadFile(path)
         }
     }
 
     private fun notifyListeners() {
-        listeners.forEach { it.onSourceChanged() }
+        nodelisteners.forEach { it.onSourceChanged(displayedList) } //wrong list
+        directoryListeners.forEach{ it.onSourceChanged(directoryList) }
     }
 
     private fun directoryListAddByParent(list : MutableSet<DirectoryItem>) {
@@ -123,11 +133,11 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     }
 
     fun fileExist(context: Context, url: String): Boolean {
-        return controllerNode.fileExist(context, url).exists()
+        return controllerNode.fileExist(url).exists()
     }
 
-    fun openFile(context: Context, filePath: String) {
-        controllerNode.openFile(context, filePath)
+    fun openFile(filePath: String) {
+        controllerNode.openFile(filePath)
     }
 
     fun getThisFile(uri: Uri?, context: Context): File {
@@ -168,7 +178,11 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         notifyListeners()
     }
 
-    interface RepositoryListener {
-        fun onSourceChanged()
+    interface NodeRepositoryListener {
+        fun onSourceChanged(list: MutableList<INode>)
+    }
+
+    interface DirectoryRepositoryListener {
+        fun onSourceChanged(list: MutableSet<DirectoryItem>)
     }
 }

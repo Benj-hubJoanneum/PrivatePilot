@@ -3,7 +3,6 @@ package com.example.selfhostedcloudstorage
 import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
@@ -24,14 +23,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
-import com.example.selfhostedcloudstorage.ui.navView.NavModel
+import com.example.selfhostedcloudstorage.ui.navView.NavViewModel
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
-    private val nodeRepository = NodeRepository.getInstance() // omit this
+    val nodeRepository = NodeRepository.initialize(this)
+
     val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity() {
                 nodeRepository.createNode(file)
             }
         }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -59,6 +61,8 @@ class MainActivity : AppCompatActivity() {
         val drawerRecyclerView = binding.navView.findViewById<RecyclerView>(R.id.drawer_recyclerview)
         drawerRecyclerView.layoutManager = LinearLayoutManager(this)
 
+
+        // switch view
         val imageView: ImageView = findViewById(R.id.imageView)
 
         imageView.setOnClickListener {
@@ -80,11 +84,11 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val navModel = ViewModelProvider(this)[NavModel::class.java]
-        val navAdapter = NavAdapter(navModel.itemList.value ?: emptyList(), navModel)
+        val navViewModel = ViewModelProvider(this)[NavViewModel::class.java]
+        val navAdapter = NavAdapter(navViewModel.itemList.value ?: emptyList(), navViewModel)
         drawerRecyclerView.adapter = navAdapter
 
-        navModel.itemList.observe(this) { items ->
+        navViewModel.itemList.observe(this) { items ->
             navAdapter.updateList(items)
         }
 

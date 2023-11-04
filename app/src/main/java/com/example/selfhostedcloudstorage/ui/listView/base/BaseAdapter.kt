@@ -113,8 +113,13 @@ abstract class BaseAdapter(
             if (selectedItems.size < 1) {
                 if (fileItem.type == FileType.FOLDER)
                     nodeRepository.readNode(fileItem.path)
-                else
-                    NodeDialogFragment(mainActivity, fileItem).show(mainActivity.supportFragmentManager, "NodeDialog")
+                else {
+                    nodeRepository.pointer = fileItem.path
+                    NodeDialogFragment(
+                        mainActivity,
+                        fileItem
+                    ).show(mainActivity.supportFragmentManager, "NodeDialog")
+                }
 
             } else toggleSelection(adapterPosition)
         }

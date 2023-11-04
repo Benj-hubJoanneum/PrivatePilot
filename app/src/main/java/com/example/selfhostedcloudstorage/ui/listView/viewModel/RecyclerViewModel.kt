@@ -5,11 +5,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 
-class RecyclerViewModel : ViewModel(), NodeRepository.RepositoryListener {
+class RecyclerViewModel() : ViewModel(), NodeRepository.NodeRepositoryListener {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is slideshow Fragment"
@@ -17,25 +18,22 @@ class RecyclerViewModel : ViewModel(), NodeRepository.RepositoryListener {
     val text: LiveData<String> = _text
     private val _itemList = MutableLiveData<List<NodeItemViewModel>>()
     val itemList: LiveData<List<NodeItemViewModel>> = _itemList
-
     private val nodeRepository = NodeRepository.getInstance()
 
     init {
-        loadFileList()
-        nodeRepository.addListener(this)
+        loadFileList(nodeRepository.displayedList)
+        nodeRepository.addNodeListener(this)
     }
 
-    private fun loadFileList() {
+    private fun loadFileList(list: MutableList<INode>) {
         try {
-            val fileList = nodeRepository.displayedList
-
-            _itemList.postValue(fileList.map { NodeItemViewModel(it as NodeItem) })
+            _itemList.postValue(list.map { NodeItemViewModel(it as NodeItem) })
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
         }
     }
 
-    override fun onSourceChanged() {
-        loadFileList()
+    override fun onSourceChanged(list: MutableList<INode>) {
+        loadFileList(list)
     }
 }
