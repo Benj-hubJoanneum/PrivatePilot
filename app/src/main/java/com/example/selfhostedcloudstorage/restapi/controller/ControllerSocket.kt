@@ -9,6 +9,7 @@ import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.restapi.client.WebSocketClient
 import com.example.selfhostedcloudstorage.restapi.model.MetadataResponse
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.google.gson.Gson
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
@@ -18,39 +19,43 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
-class ControllerSocket(private val callback: ControllerCallback) :
+class ControllerSocket(private val nodeRepository: NodeRepository, private val callback: ControllerCallback) :
     WebSocketClient.WebSocketCallback {
     private val webSocketClient: WebSocketClient = WebSocketClient(this)
-    private var pointer = ""
-    var directoryList = mutableSetOf<DirectoryItem>()
-    var nodeList = mutableSetOf<INode>()
 
-    suspend fun createNodes(url: String, file: File) {
+    fun createNodes(url: String, file: File) {
         sendToServer("POST", url) // send request to create directory on server
         val byteString = file.parseFileToBytes()
         if (byteString != null) sendToServer(byteString) // send file to server
     }
 
     fun requestNodes(url: String) {
-        pointer = url
+        nodeRepository.pointer = url
         sendToServer("GET", url)
     }
 
     private fun readNodes(json: String) {
         try {
+
+            val pointer = nodeRepository.pointer
+
+            val directoryList = mutableSetOf<DirectoryItem>()
+            val nodeList: MutableSet<INode>
+
             val data = json.parseItemsFromResponse()
 
             directoryList.addAll(data.items.filter { it.type == "folder" }.map {
                 DirectoryItem(it.name, "$pointer/${it.name}")
             })
             nodeList = data.items.map { NodeItem(it.name, "$pointer/${it.name}") }.toMutableSet()
-            callback.onControllerSourceChanged()
+
+            callback.onControllerSourceChanged(directoryList, nodeList)
         } catch (e: IOException) {
             println("Error parsing JSON: ${e.message}")
         }
     }
 
-    suspend fun updateNodes(url: String) {
+    fun updateNodes(url: String) {
         // TODO: check if a namechange of exchange the whole file
         /*sendToServer("UPDATE", url)*/
     }
@@ -157,7 +162,7 @@ class ControllerSocket(private val callback: ControllerCallback) :
             if (message.size > 0) {
 
                 // create file on phone
-                val outputFile = fileExist(context, pointer, true)
+                val outputFile = fileExist(context, nodeRepository.pointer, true)
 
                 // write data to file
                 message.parseBytesToFile(outputFile)
@@ -177,6 +182,6 @@ class ControllerSocket(private val callback: ControllerCallback) :
     }
 
     interface ControllerCallback {
-        fun onControllerSourceChanged()
+        fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList: MutableSet<INode>)
     }
 }

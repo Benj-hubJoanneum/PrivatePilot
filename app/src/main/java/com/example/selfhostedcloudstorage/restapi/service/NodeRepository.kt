@@ -10,7 +10,6 @@ import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
-import com.example.selfhostedcloudstorage.restapi.controller.ControllerNode
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,11 +29,13 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
             }
     }
 
+    //collections
     private var fullFileList: MutableSet<INode> = mutableSetOf()
-    internal var currentPath: MutableSet<DirectoryItem> = mutableSetOf()
+    internal var pointer: String = ""
     internal var directoryList: MutableSet<DirectoryItem> = mutableSetOf()
     internal var displayedList: MutableList<INode> = mutableListOf()
-    private var controllerNode = ControllerSocket(this)
+
+    private var controllerNode = ControllerSocket(this, this)
     private var listeners: MutableSet<RepositoryListener> = mutableSetOf() //could save doubles
     var selectedFileUri: Uri? = null
 
@@ -160,9 +161,9 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         return ""
     }
 
-    override fun onControllerSourceChanged() {
-        fullFileList = controllerNode.nodeList
-        directoryListAddByParent(controllerNode.directoryList)
+    override fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList : MutableSet<INode>) {
+        directoryListAddByParent(directoryList)
+        fullFileList = nodeList
         displayListSorting()
         notifyListeners()
     }
