@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
-import com.example.selfhostedcloudstorage.ui.navView.HorizontalListAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavViewModel
 import com.google.android.material.navigation.NavigationView
@@ -31,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
-    val nodeRepository = NodeRepository.getInstance()
+    private val nodeRepository = NodeRepository.getInstance()
 
     val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -71,14 +70,20 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         val navViewModel = ViewModelProvider(this)[NavViewModel::class.java]
-        val navAdapter = NavAdapter(navViewModel.itemList.value ?: emptyList(), navViewModel)
+        val navAdapter = NavAdapter(navViewModel)
         drawerRecyclerView.adapter = navAdapter
+
+        nodeRepository.directoryList.observe(this){items ->
+            navViewModel.loadFolderList(items)
+        }
 
         navViewModel.itemList.observe(this) { items ->
             navAdapter.updateList(items)
         }
-        nodeRepository.directoryPointer.observe(this) { newTitle ->
-            supportActionBar?.title = newTitle
+
+        nodeRepository.directoryPointer.observe(this) { newPath ->
+            supportActionBar?.title = newPath
+            //navAdapter.selectedFolderChanged(newPath)
         }
 
         handleIntent(intent)

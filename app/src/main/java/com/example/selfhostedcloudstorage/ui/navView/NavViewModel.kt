@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
@@ -23,13 +22,12 @@ class NavViewModel() : ViewModel() {
     private val nodeRepository = NodeRepository.getInstance()
 
     init {
-        loadFolderList(nodeRepository.directoryList)
         setSelectedFolder(_itemList.value?.firstOrNull()) // Corrected function name here
     }
 
-    private fun loadFolderList(directoryList: LiveData<MutableSet<DirectoryItem>>) {
-        directoryList.observeForever { list ->
-            try {
+    fun loadFolderList(directoryList: MutableSet<DirectoryItem>) {
+        try {
+            directoryList.let { list ->
                 list.sortedWith(compareBy { it.parentFolder })
                     .map {
                         DirectoryItemViewModel(it)
@@ -37,17 +35,23 @@ class NavViewModel() : ViewModel() {
                     }
 
                 _itemList.postValue(list.map { DirectoryItemViewModel(it) })
-
-            } catch (e: Exception) {
-                Log.e(ContentValues.TAG, "Error loading folders: ${e.message}")
             }
+        } catch (e: Exception) {
+            Log.e(ContentValues.TAG, "Error loading folders: ${e.message}")
         }
     }
 
-    fun setSelectedFolder(folder: DirectoryItemViewModel?) { // Corrected function name here
+    fun setSelectedFolder(folder: DirectoryItemViewModel?) {
         if (folder != null) {
             _selectedFolder.value = folder
             nodeRepository.readNode(folder.path)
         }
+    }
+
+    fun setSelectedFolder(path: String) {
+        val folder = itemList.value?.find { it.name == path }
+
+        if (folder != null)
+            _selectedFolder.value = folder
     }
 }

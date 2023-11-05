@@ -50,7 +50,6 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         CoroutineScope(Dispatchers.IO).launch {
             readNode("")
         }
-        _directoryPointer.postValue("HOME")
     }
 
     fun launchFileSelection(openFileLauncher: ActivityResultLauncher<Intent>) {
