@@ -19,9 +19,10 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 
-class ControllerSocket(private val context: Context, private val nodeRepository: NodeRepository, private val callback: ControllerCallback) :
+class ControllerSocket(private val nodeRepository: NodeRepository, private val callback: ControllerCallback) :
     WebSocketClient.WebSocketCallback {
     private val webSocketClient: WebSocketClient = WebSocketClient(this)
+    private var context: Context? = null
 
     fun createNodes(url: String, file: File) {
         sendToServer("POST", url) // send request to create directory on server
@@ -68,10 +69,12 @@ class ControllerSocket(private val context: Context, private val nodeRepository:
         sendToServer("GET", url)
     }
 
-    fun fileExist(url: String, write: Boolean = false): File {
+    fun fileExist(url: String, context: Context, write: Boolean = false): File {
         val fileName = url.substringAfterLast('/')
         val filepath = url.substringBeforeLast('/')
         val dirPath = "public_$filepath"
+
+        this.context = context
 
         val file = context.getExternalFilesDir(dirPath)
 
@@ -82,25 +85,27 @@ class ControllerSocket(private val context: Context, private val nodeRepository:
     }
 
     fun openFile(url: String) {
-        val file = fileExist(url)
+        if (context != null) {
+            val file = fileExist(url, context!!)
 
-        if (file.exists()) {
-            val mimeType = context.contentResolver.getType(Uri.fromFile(file))
-            val intent = Intent(Intent.ACTION_VIEW)
-            val uri = FileProvider.getUriForFile(
-                context,
-                context.applicationContext.packageName + ".provider",
-                file
-            )
+            if (file.exists()) {
+                val mimeType = context!!.contentResolver.getType(Uri.fromFile(file))
+                val intent = Intent(Intent.ACTION_VIEW)
+                val uri = FileProvider.getUriForFile(
+                    context!!,
+                    context!!.applicationContext.packageName + ".provider",
+                    file
+                )
 
-            intent.setDataAndType(uri, mimeType)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                intent.setDataAndType(uri, mimeType)
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
             try {
-                context.startActivity(intent)
+                context!!.startActivity(intent)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
         }
     }
 
@@ -146,18 +151,20 @@ class ControllerSocket(private val context: Context, private val nodeRepository:
     }
 
     fun saveFileToPhone(message: ByteString) {
-        try {
-            if (message.size > 0) {
+        if (context != null) {
+            try {
+                if (message.size > 0) {
 
-                // create file on phone
-                val outputFile = fileExist(nodeRepository.pointer, true)
+                    // create file on phone
+                    val outputFile = fileExist(nodeRepository.pointer, this.context!!)
 
-                // write data to file
-                message.parseBytesToFile(outputFile)
+                    // write data to file
+                    message.parseBytesToFile(outputFile)
 
+                }
+            } catch (e: IOException) {
+                println("Error saving file: ${e.message}")
             }
-        } catch (e: IOException) {
-            println("Error saving file: ${e.message}")
         }
     }
 

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.result.ActivityResultLauncher
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.INode
@@ -17,38 +19,38 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
-class NodeRepository private constructor(private val context: Context) : ControllerSocket.ControllerCallback {
+class NodeRepository() : ControllerSocket.ControllerCallback {
 
     companion object {
         @Volatile
         private var instance: NodeRepository? = null
 
-        fun getInstance(): NodeRepository {
-            return instance ?: throw UninitializedPropertyAccessException("NodeRepository has not been initialized.")
-        }
-
-        fun initialize(context: Context) : NodeRepository {
-            instance = NodeRepository(context)
-            return instance as NodeRepository
-        }
+        fun getInstance() =
+            instance ?: synchronized(this) {
+                instance ?: NodeRepository().also { instance = it }
+            }
     }
 
     //collections
-    private var fullFileList: MutableSet<INode> = mutableSetOf()
-    internal var pointer: String = ""
-    internal var directoryList: MutableSet<DirectoryItem> = mutableSetOf()
-    internal var displayedList: MutableList<INode> = mutableListOf()
-
-    private var controllerNode = ControllerSocket(context, this, this)
-    private var nodelisteners: MutableSet<NodeRepositoryListener> = mutableSetOf() //could save doubles
-    private var directoryListeners: MutableSet<DirectoryRepositoryListener> = mutableSetOf() //could save doubles
+    private var controllerNode = ControllerSocket(this, this)
     var selectedFileUri: Uri? = null
 
+    internal var pointer: String = ""
+    private val _directoryPointer = MutableLiveData<String>()
+    val directoryPointer: LiveData<String> = _directoryPointer
+
+    private val _directoryList = MutableLiveData<MutableSet<DirectoryItem>>()
+    val directoryList: LiveData<MutableSet<DirectoryItem>> = _directoryList
+
+    private var fullFileList: MutableSet<INode> = mutableSetOf()
+    private val _displayedList = MutableLiveData<MutableList<INode>>()
+    val displayedList: LiveData<MutableList<INode>> = _displayedList
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
             readNode("")
         }
+        _directoryPointer.postValue("HOME")
     }
 
     fun launchFileSelection(openFileLauncher: ActivityResultLauncher<Intent>) {
@@ -60,30 +62,23 @@ class NodeRepository private constructor(private val context: Context) : Control
     }
 
     fun onSearchQuery(query: String) {
-        displayedList = fullFileList.filter { node ->
+        val filteredList = fullFileList.filter { node ->
             (node is NodeItem) && node.name.contains(query, ignoreCase = true)
         }.toMutableList()
+        _displayedList.postValue(filteredList)
+        _directoryPointer.postValue(query)
     }
 
     fun undoSearch() {
-        displayedList.clear()
-        displayedList.addAll(fullFileList)
-    }
-
-    fun addNodeListener(repositoryListener: NodeRepositoryListener) {
-        nodelisteners.add(repositoryListener)
-    }
-
-    fun addNodeListener(repositoryListener: DirectoryRepositoryListener) {
-        directoryListeners.add(repositoryListener)
+        _displayedList.postValue(fullFileList.toMutableList())
     }
 
     fun createNode(file: File) {
         CoroutineScope(Dispatchers.IO).launch {
-            var path = displayedList.first().path//workaround should be swapped as searchfunction will trigger bugs OR flag the the list to disable search
-            controllerNode.createNodes(
-                path,
-                file)
+            val path = _directoryPointer.value ?: ""
+
+            if (path != "")
+                controllerNode.createNodes(path, file)
         }
     }
 
@@ -91,6 +86,7 @@ class NodeRepository private constructor(private val context: Context) : Control
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.requestNodes(path)
         }
+        _directoryPointer.postValue(path.substringAfterLast('/'))
     }
 
     fun updateNode(path: String) {
@@ -108,12 +104,9 @@ class NodeRepository private constructor(private val context: Context) : Control
         }
     }
 
-    private fun notifyListeners() {
-        nodelisteners.forEach { it.onSourceChanged(displayedList) } //wrong list
-        directoryListeners.forEach{ it.onSourceChanged(directoryList) }
-    }
-
     private fun directoryListAddByParent(list : MutableSet<DirectoryItem>) {
+        val directoryList = _directoryList.value ?: mutableSetOf()
+
         list -= directoryList
         val newList = directoryList.toMutableList()
 
@@ -121,19 +114,20 @@ class NodeRepository private constructor(private val context: Context) : Control
             val index = directoryList.indexOfFirst { it.path == newNode.parentFolder }
             newList.add(index + 1, newNode)
         }
-        directoryList = newList.toMutableSet()
+        _directoryList.postValue(newList.toMutableSet())
     }
 
     private fun displayListSorting(){
-        displayedList = fullFileList
+        val sortedList = fullFileList
             .sortedWith(compareBy(
                 { it.type != FileType.FOLDER },
                 { it.name }))
             .toMutableList()
+        _displayedList.postValue(sortedList)
     }
 
-    fun fileExist(context: Context, url: String): Boolean {
-        return controllerNode.fileExist(url).exists()
+    fun fileExist(url: String, context: Context): Boolean {
+        return controllerNode.fileExist(url, context).exists()
     }
 
     fun openFile(filePath: String) {
@@ -172,17 +166,8 @@ class NodeRepository private constructor(private val context: Context) : Control
     }
 
     override fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList : MutableSet<INode>) {
-        directoryListAddByParent(directoryList)
         fullFileList = nodeList
+        directoryListAddByParent(directoryList)
         displayListSorting()
-        notifyListeners()
-    }
-
-    interface NodeRepositoryListener {
-        fun onSourceChanged(list: MutableList<INode>)
-    }
-
-    interface DirectoryRepositoryListener {
-        fun onSourceChanged(list: MutableSet<DirectoryItem>)
     }
 }

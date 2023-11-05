@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
-import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
+import com.example.selfhostedcloudstorage.ui.navView.HorizontalListAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavViewModel
 import com.google.android.material.navigation.NavigationView
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
-    val nodeRepository = NodeRepository.initialize(this)
+    val nodeRepository = NodeRepository.getInstance()
 
     val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(true)
+
 
         binding.appBarMain.fab.setOnClickListener { view ->
             nodeRepository.launchFileSelection(openFileLauncher)
@@ -75,6 +76,9 @@ class MainActivity : AppCompatActivity() {
 
         navViewModel.itemList.observe(this) { items ->
             navAdapter.updateList(items)
+        }
+        nodeRepository.directoryPointer.observe(this) { newTitle ->
+            supportActionBar?.title = newTitle
         }
 
         handleIntent(intent)

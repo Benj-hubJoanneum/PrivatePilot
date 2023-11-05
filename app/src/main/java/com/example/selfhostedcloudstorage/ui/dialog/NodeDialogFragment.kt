@@ -64,7 +64,7 @@ class NodeDialogFragment (
     }
 
     fun switchButton(){
-        if (nodeRepository.fileExist(context, node.path)){
+        if (nodeRepository.fileExist(node.path, context)){
             binding.download.visibility = View.GONE
             binding.openFile.visibility = View.VISIBLE
         } else {

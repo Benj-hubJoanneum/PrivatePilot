@@ -10,7 +10,7 @@ import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 
-class RecyclerViewModel() : ViewModel(), NodeRepository.NodeRepositoryListener {
+class RecyclerViewModel() : ViewModel() {
 
     private val _text = MutableLiveData<String>()
     val text: LiveData<String> = _text
@@ -22,14 +22,15 @@ class RecyclerViewModel() : ViewModel(), NodeRepository.NodeRepositoryListener {
 
     init {
         loadFileList(nodeRepository.displayedList)
-        nodeRepository.addNodeListener(this)
     }
 
-    private fun loadFileList(list: MutableList<INode>) {
-        try {
-            _itemList.postValue(list.map { NodeItemViewModel(it as NodeItem) })
-        } catch (e: Exception) {
-            Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
+    private fun loadFileList(displayedList: LiveData<MutableList<INode>>) {
+        displayedList.observeForever { list ->
+            try {
+                _itemList.postValue(list.map { NodeItemViewModel(it as NodeItem) })
+            } catch (e: Exception) {
+                Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
+            }
         }
     }
 
@@ -38,7 +39,4 @@ class RecyclerViewModel() : ViewModel(), NodeRepository.NodeRepositoryListener {
         _imageResource.value = newImage
     }
 
-    override fun onSourceChanged(list: MutableList<INode>) {
-        loadFileList(list)
-    }
 }
