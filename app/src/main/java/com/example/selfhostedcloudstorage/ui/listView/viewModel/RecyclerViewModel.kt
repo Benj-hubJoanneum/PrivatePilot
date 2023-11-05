@@ -12,10 +12,10 @@ import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 
 class RecyclerViewModel() : ViewModel(), NodeRepository.NodeRepositoryListener {
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is slideshow Fragment"
-    }
+    private val _text = MutableLiveData<String>()
     val text: LiveData<String> = _text
+    private val _imageResource = MutableLiveData<Int>()
+    val imageResource: LiveData<Int> = _imageResource
     private val _itemList = MutableLiveData<List<NodeItemViewModel>>()
     val itemList: LiveData<List<NodeItemViewModel>> = _itemList
     private val nodeRepository = NodeRepository.getInstance()
@@ -31,6 +31,11 @@ class RecyclerViewModel() : ViewModel(), NodeRepository.NodeRepositoryListener {
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
         }
+    }
+
+    fun setValues(newText: String, newImage: Int) {
+        _text.value = newText
+        _imageResource.value = newImage
     }
 
     override fun onSourceChanged(list: MutableList<INode>) {

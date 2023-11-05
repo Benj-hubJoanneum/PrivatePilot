@@ -4,18 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
 import com.example.selfhostedcloudstorage.ui.listView.viewModel.RecyclerViewModel
 
 abstract class BaseFragment(): Fragment() {
     private var _binding: FragmentListviewBinding? = null
-    private val binding get() = _binding!!
+    val binding get() = _binding!!
     private lateinit var adapter : BaseAdapter
-    private lateinit var recyclerViewModel: RecyclerViewModel
+    lateinit var recyclerViewModel: RecyclerViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,6 +43,21 @@ abstract class BaseFragment(): Fragment() {
         val textView: TextView = binding.textAllFiles
         recyclerViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
+        }
+        val imageView: ImageView = binding.switchImage
+        recyclerViewModel.imageResource.observe(viewLifecycleOwner) { resource ->
+            imageView.setImageResource(resource)
+        }
+
+        imageView.setOnClickListener {
+            // Check the current fragment and navigate to the other fragment
+            val currentFragmentId = requireActivity().findNavController(R.id.nav_host_fragment_content_main).currentDestination?.id
+            val newFragmentId = if (currentFragmentId == R.id.nav_listview) {
+                R.id.nav_gridview // Switch to the GridFragment
+            } else {
+                R.id.nav_listview // Switch to the ListFragment
+            }
+            requireActivity().findNavController(R.id.nav_host_fragment_content_main).navigate(newFragmentId)
         }
         return root
     }

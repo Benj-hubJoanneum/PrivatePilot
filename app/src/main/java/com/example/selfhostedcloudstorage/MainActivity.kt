@@ -56,25 +56,10 @@ class MainActivity : AppCompatActivity() {
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         val drawerRecyclerView = binding.navView.findViewById<RecyclerView>(R.id.drawer_recyclerview)
         drawerRecyclerView.layoutManager = LinearLayoutManager(this)
-
-
-        // switch view
-        val imageView: ImageView = findViewById(R.id.imageView)
-
-        imageView.setOnClickListener {
-            val currentFragmentId = navController.currentDestination?.id
-            val newFragmentId = if (currentFragmentId == R.id.nav_listview) {
-                R.id.nav_gridview
-            } else {
-                R.id.nav_listview
-            }
-            navController.navigate(newFragmentId)
-            drawerLayout.closeDrawers()
-        }
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         appBarConfiguration = AppBarConfiguration(
             setOf(
@@ -94,6 +79,7 @@ class MainActivity : AppCompatActivity() {
 
         handleIntent(intent)
     }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
