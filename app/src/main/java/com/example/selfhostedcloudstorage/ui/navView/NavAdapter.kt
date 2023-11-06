@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.DirectoryNodeBinding
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 
 class NavAdapter(
     private val navViewModel: NavViewModel
@@ -53,16 +54,8 @@ class NavAdapter(
         notifyDataSetChanged()
     }
 
-    private fun selectedFolderChanged(selectedFolder: DirectoryItemViewModel) {
-        this.selectedFolder = selectedFolder
-        navViewModel.setSelectedFolder(selectedFolder)
-        notifyDataSetChanged()
-    }
-
-    fun selectedFolderChanged(name: String) {
-        this.selectedFolder = itemList.find { it.path == name }
-        navViewModel.setSelectedFolder(name)
-        notifyDataSetChanged()
+    fun updateSelectedFolder(newSelectedFolder: DirectoryItemViewModel) {
+        selectedFolder = newSelectedFolder
     }
 
     inner class DirViewHolder(private val binding: DirectoryNodeBinding) :
@@ -75,7 +68,7 @@ class NavAdapter(
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
                 val clickedFolder = itemList[position]
-                selectedFolderChanged(clickedFolder)
+                navViewModel.setSelectedFolder(clickedFolder)
             }
         }
 

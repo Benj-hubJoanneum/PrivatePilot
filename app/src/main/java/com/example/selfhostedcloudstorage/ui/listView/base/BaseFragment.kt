@@ -12,6 +12,7 @@ import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.listView.viewModel.RecyclerViewModel
 
 abstract class BaseFragment(): Fragment() {
@@ -19,6 +20,7 @@ abstract class BaseFragment(): Fragment() {
     val binding get() = _binding!!
     private lateinit var adapter : BaseAdapter
     lateinit var recyclerViewModel: RecyclerViewModel
+    private val nodeRepository = NodeRepository.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,10 +29,16 @@ abstract class BaseFragment(): Fragment() {
     ): View {
         _binding = FragmentListviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
         recyclerViewModel = ViewModelProvider(this)[RecyclerViewModel::class.java]
 
         // Initialize fileAdapter
         adapter = createAdapter()
+
+        nodeRepository.displayedList.observe(viewLifecycleOwner) {
+            recyclerViewModel.loadFileList(it)
+        }
+
         recyclerViewModel.itemList.observe(viewLifecycleOwner) { newItemList ->
             adapter.updateList(newItemList)
         }
@@ -44,6 +52,8 @@ abstract class BaseFragment(): Fragment() {
         recyclerViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
         }
+
+
         val imageView: ImageView = binding.switchImage
         recyclerViewModel.imageResource.observe(viewLifecycleOwner) { resource ->
             imageView.setImageResource(resource)

@@ -73,18 +73,18 @@ class MainActivity : AppCompatActivity() {
         val navAdapter = NavAdapter(navViewModel)
         drawerRecyclerView.adapter = navAdapter
 
-        nodeRepository.directoryList.observe(this){items ->
-            navViewModel.loadFolderList(items)
+        nodeRepository.directoryList.observe(this){ navViewModel.loadFolderList(it) }
+        navViewModel.itemList.observe(this) { navAdapter.updateList(it) }
+
+        nodeRepository.directoryPointer.observe(this) {navViewModel.setSelectedFolder(it) }
+        navViewModel.selectedFolder.observe(this) {
+            if(it != null) {
+                navAdapter.updateSelectedFolder(it)
+                nodeRepository.readNode(it.path)
+            }
         }
 
-        navViewModel.itemList.observe(this) { items ->
-            navAdapter.updateList(items)
-        }
-
-        nodeRepository.directoryPointer.observe(this) { newPath ->
-            supportActionBar?.title = newPath
-            //navAdapter.selectedFolderChanged(newPath)
-        }
+        nodeRepository.readNode("")
 
         handleIntent(intent)
     }

@@ -46,11 +46,11 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     private val _displayedList = MutableLiveData<MutableList<INode>>()
     val displayedList: LiveData<MutableList<INode>> = _displayedList
 
-    init {
+ /*   init {
         CoroutineScope(Dispatchers.IO).launch {
             readNode("")
         }
-    }
+    }*/
 
     fun launchFileSelection(openFileLauncher: ActivityResultLauncher<Intent>) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -84,8 +84,10 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     fun readNode(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.requestNodes(path)
+
+            if(directoryPointer.value != path)
+                _directoryPointer.postValue(path)
         }
-        _directoryPointer.postValue(path.substringAfterLast('/'))
     }
 
     fun updateNode(path: String) {

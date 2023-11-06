@@ -14,12 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
+import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.listView.base.BaseAdapter
 import com.example.selfhostedcloudstorage.ui.listView.base.BaseFragment
 import com.example.selfhostedcloudstorage.ui.listView.list.ListAdapter
 import com.example.selfhostedcloudstorage.ui.listView.viewModel.RecyclerViewModel
 
 class GridFragment : BaseFragment() {
+
     override fun createAdapter(): BaseAdapter {
         return GridAdapter(emptyList(), requireActivity() as MainActivity)
     }

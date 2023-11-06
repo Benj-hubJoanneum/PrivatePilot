@@ -22,9 +22,9 @@ abstract class BaseAdapter(
     protected val mainActivity: MainActivity
 ) : RecyclerView.Adapter<BaseAdapter.BaseViewHolder>(), ActionMode.Callback  {
 
-    protected val selectedItems = mutableListOf<Int>()
+    protected var selectedItems = mutableListOf<Int>()
     protected var actionMode: ActionMode? = null
-    private val nodeRepository = NodeRepository.getInstance()
+    private val nodeRepository = NodeRepository.getInstance() //to be deleted
 
     override fun getItemCount(): Int {
         return itemList.size
