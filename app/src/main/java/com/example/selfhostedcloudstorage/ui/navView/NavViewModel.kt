@@ -34,9 +34,11 @@ class NavViewModel() : ViewModel() {
 
     fun setSelectedFolder(path: String) {
         try {
-            val folder = _itemList.value?.find { it.name == path }
-            if (folder != null)
-                _selectedFolder.postValue(folder)
+            if (_selectedFolder.value?.path != path) {
+                val folder = _itemList.value?.find { it.path == path }
+                if (folder != null)
+                    _selectedFolder.postValue(folder)
+            }
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error selecting folder: ${e.message}")
         }
