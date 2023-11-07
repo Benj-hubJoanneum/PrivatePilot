@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     private var actionMode: ActionMode? = null
     private val nodeRepository = NodeRepository.getInstance()
 
-    val openFileLauncher: ActivityResultLauncher<Intent> =
+    private val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 nodeRepository.selectedFileUri = result.data?.data
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         val navViewModel = ViewModelProvider(this)[NavViewModel::class.java]
-        val navAdapter = NavAdapter(navViewModel)
+        val navAdapter = NavAdapter()
         drawerRecyclerView.adapter = navAdapter
 
         nodeRepository.directoryList.observe(this){ navViewModel.loadFolderList(it) }
@@ -78,10 +78,8 @@ class MainActivity : AppCompatActivity() {
 
         nodeRepository.directoryPointer.observe(this) {navViewModel.setSelectedFolder(it) }
         navViewModel.selectedFolder.observe(this) {
-            if(it != null) {
-                navAdapter.updateSelectedFolder(it)
-                nodeRepository.readNode(it.path)
-            }
+            navAdapter.updateSelectedFolder(it)
+            supportActionBar?.title = it?.name ?: "HOME"
         }
 
         nodeRepository.readNode("")

@@ -31,14 +31,15 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     }
 
     fun requestNodes(url: String) {
-        nodeRepository.pointer = url
+        //nodeRepository.pointer = url
         sendToServer("GET", url)
     }
 
     private fun readNodes(json: String) {
         try {
 
-            val pointer = nodeRepository.pointer
+            val pointer = nodeRepository.directoryPointer.value ?: ""
+
 
             val directoryList = mutableSetOf<DirectoryItem>()
             val nodeList: MutableSet<INode>
@@ -154,9 +155,10 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         if (context != null) {
             try {
                 if (message.size > 0) {
+                    val pointer = nodeRepository.directoryPointer.value ?: ""
 
                     // create file on phone
-                    val outputFile = fileExist(nodeRepository.pointer, this.context!!)
+                    val outputFile = fileExist(pointer, this.context!!)
 
                     // write data to file
                     message.parseBytesToFile(outputFile)

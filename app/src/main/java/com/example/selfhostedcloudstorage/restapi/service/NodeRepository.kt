@@ -35,7 +35,6 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     private var controllerNode = ControllerSocket(this, this)
     var selectedFileUri: Uri? = null
 
-    internal var pointer: String = ""
     private val _directoryPointer = MutableLiveData<String>()
     val directoryPointer: LiveData<String> = _directoryPointer
 
@@ -45,12 +44,6 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     private var fullFileList: MutableSet<INode> = mutableSetOf()
     private val _displayedList = MutableLiveData<MutableList<INode>>()
     val displayedList: LiveData<MutableList<INode>> = _displayedList
-
- /*   init {
-        CoroutineScope(Dispatchers.IO).launch {
-            readNode("")
-        }
-    }*/
 
     fun launchFileSelection(openFileLauncher: ActivityResultLauncher<Intent>) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -93,6 +86,7 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     fun updateNode(path: String) {
 
     }
+
     fun deleteNode(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.deleteNodes(path)

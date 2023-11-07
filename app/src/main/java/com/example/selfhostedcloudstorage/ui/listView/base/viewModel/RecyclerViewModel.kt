@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.listView.viewModel
+package com.example.selfhostedcloudstorage.ui.listView.base.viewModel
 
 import android.content.ContentValues
 import android.util.Log
@@ -6,10 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.INode
+import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 
-class RecyclerViewModel() : ViewModel() {
+class RecyclerViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>()
     val text: LiveData<String> = _text
@@ -34,5 +35,4 @@ class RecyclerViewModel() : ViewModel() {
         _text.value = newText
         _imageResource.value = newImage
     }
-
 }

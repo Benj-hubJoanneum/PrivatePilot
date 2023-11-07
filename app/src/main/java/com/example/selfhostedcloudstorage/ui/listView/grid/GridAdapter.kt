@@ -6,6 +6,7 @@ import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.databinding.FileItemBinding
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.ui.listView.base.BaseAdapter
+import com.example.selfhostedcloudstorage.ui.listView.base.viewModel.RecyclerViewModel
 
 class GridAdapter(
     itemList: List<NodeItemViewModel>,

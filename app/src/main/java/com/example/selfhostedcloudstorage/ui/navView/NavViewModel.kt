@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 
-class NavViewModel() : ViewModel() {
+class NavViewModel : ViewModel() {
 
     private val _itemList = MutableLiveData<List<DirectoryItemViewModel>>()
     val itemList: LiveData<List<DirectoryItemViewModel>> = _itemList
@@ -36,17 +36,8 @@ class NavViewModel() : ViewModel() {
         try {
             if (_selectedFolder.value?.path != path) {
                 val folder = _itemList.value?.find { it.path == path }
-                if (folder != null)
-                    _selectedFolder.postValue(folder)
+                _selectedFolder.postValue(folder)
             }
-        } catch (e: Exception) {
-            Log.e(ContentValues.TAG, "Error selecting folder: ${e.message}")
-        }
-    }
-
-    fun setSelectedFolder(folder: DirectoryItemViewModel) {
-        try {
-            _selectedFolder.postValue(folder)
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error selecting folder: ${e.message}")
         }

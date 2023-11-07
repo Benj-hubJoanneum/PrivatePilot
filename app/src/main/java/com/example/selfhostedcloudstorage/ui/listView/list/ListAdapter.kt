@@ -8,6 +8,7 @@ import com.example.selfhostedcloudstorage.databinding.FileNodeBinding
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.listView.base.BaseAdapter
+import com.example.selfhostedcloudstorage.ui.listView.base.viewModel.RecyclerViewModel
 
 class ListAdapter(
     itemList: List<NodeItemViewModel>,

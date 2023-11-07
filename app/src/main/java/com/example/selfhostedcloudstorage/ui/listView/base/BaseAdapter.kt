@@ -16,6 +16,7 @@ import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
+import com.example.selfhostedcloudstorage.ui.listView.base.viewModel.RecyclerViewModel
 
 abstract class BaseAdapter(
     protected var itemList: List<NodeItemViewModel>,
@@ -24,7 +25,7 @@ abstract class BaseAdapter(
 
     protected var selectedItems = mutableListOf<Int>()
     protected var actionMode: ActionMode? = null
-    private val nodeRepository = NodeRepository.getInstance() //to be deleted
+    private val nodeRepository = NodeRepository.getInstance()
 
     override fun getItemCount(): Int {
         return itemList.size
@@ -114,11 +115,7 @@ abstract class BaseAdapter(
                 if (fileItem.type == FileType.FOLDER)
                     nodeRepository.readNode(fileItem.path)
                 else {
-                    nodeRepository.pointer = fileItem.path
-                    NodeDialogFragment(
-                        mainActivity,
-                        fileItem
-                    ).show(mainActivity.supportFragmentManager, "NodeDialog")
+                    NodeDialogFragment(mainActivity, fileItem).show(mainActivity.supportFragmentManager, "NodeDialog")
                 }
 
             } else toggleSelection(adapterPosition)
