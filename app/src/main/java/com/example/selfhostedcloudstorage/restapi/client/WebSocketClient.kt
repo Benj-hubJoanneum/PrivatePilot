@@ -10,6 +10,7 @@ class WebSocketClient(private val callback: WebSocketCallback) {
 
     private val client = OkHttpClient()
     private val url = "ws://10.0.0.245:8080"
+    //private val url = "ws://91.113.52.18:8080"
     //private val url = "ws://172.19.11.57:8080"
     //private val url = "ws://10.0.0.137:8080"
     private val request = Request

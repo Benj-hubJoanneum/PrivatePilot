@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
+import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
 class HorizontalListAdapter : RecyclerView.Adapter<HorizontalListAdapter.HorizontalViewHolder>() {
 
-    private var itemList: HashMap<String, String> = hashMapOf()
+    private var itemList: List<DirectoryItem> = listOf()
     private var nodeRepository = NodeRepository.getInstance()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HorizontalViewHolder {
@@ -19,11 +20,11 @@ class HorizontalListAdapter : RecyclerView.Adapter<HorizontalListAdapter.Horizon
     }
 
     override fun onBindViewHolder(holder: HorizontalViewHolder, position: Int) {
-        val item = itemList.entries.elementAt(position)
-        holder.itemText.text = item.value
+        val item = itemList[position]
+        holder.itemText.text = item.name
 
         holder.itemView.setOnClickListener {
-            nodeRepository.readNode(item.key)
+            nodeRepository.readNode(item.path)
         }
     }
 
@@ -31,7 +32,7 @@ class HorizontalListAdapter : RecyclerView.Adapter<HorizontalListAdapter.Horizon
         return itemList.size
     }
 
-    fun updateList(newItemList: HashMap<String, String>) {
+    fun updateList(newItemList: List<DirectoryItem>) {
         itemList = newItemList
         notifyDataSetChanged()
     }

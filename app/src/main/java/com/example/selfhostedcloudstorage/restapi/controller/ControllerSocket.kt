@@ -25,7 +25,8 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     private var context: Context? = null
 
     fun createNodes(url: String, file: File) {
-        sendToServer("POST", url) // send request to create directory on server
+        val filepath = "$url/${file.name}"
+        sendToServer("POST", filepath) // send request to mkdir of filepath
         val byteString = file.parseFileToBytes()
         if (byteString != null) sendToServer(byteString) // send file to server
     }
@@ -92,11 +93,7 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
             if (file.exists()) {
                 val mimeType = context!!.contentResolver.getType(Uri.fromFile(file))
                 val intent = Intent(Intent.ACTION_VIEW)
-                val uri = FileProvider.getUriForFile(
-                    context!!,
-                    context!!.applicationContext.packageName + ".provider",
-                    file
-                )
+                val uri = FileProvider.getUriForFile(context!!, context!!.applicationContext.packageName + ".provider", file)
 
                 intent.setDataAndType(uri, mimeType)
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -133,7 +130,7 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    fun ByteString.parseBytesToFile(file: File) {
+    private fun ByteString.parseBytesToFile(file: File) {
         return try {
             val byteArray = this.toByteArray()
             file.writeBytes(byteArray)
@@ -142,7 +139,7 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    fun File.parseFileToBytes(): ByteString? {
+    private fun File.parseFileToBytes(): ByteString? {
         return try {
             this.readBytes().toByteString()
         } catch (e: IOException) {
@@ -151,11 +148,11 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    fun saveFileToPhone(message: ByteString) {
+    private fun saveFileToPhone(message: ByteString) {
         if (context != null) {
             try {
                 if (message.size > 0) {
-                    val pointer = nodeRepository.directoryPointer.value ?: ""
+                    val pointer = nodeRepository.filePointer
 
                     // create file on phone
                     val outputFile = fileExist(pointer, this.context!!)
@@ -170,13 +167,13 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    fun sendToServer(prefix: String, content: String) {
+    private fun sendToServer(prefix: String, content: String) {
         val conn = webSocketClient.getConnection()
         val requestMessage = "$prefix:$content"
         conn.send(requestMessage)
     }
 
-    fun sendToServer(requestMessage: ByteString) {
+    private fun sendToServer(requestMessage: ByteString) {
         val conn = webSocketClient.getConnection()
         conn.send(requestMessage)
     }

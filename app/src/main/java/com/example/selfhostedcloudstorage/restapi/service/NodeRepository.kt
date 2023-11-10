@@ -38,6 +38,8 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     private val _directoryPointer = MutableLiveData<String>()
     val directoryPointer: LiveData<String> = _directoryPointer
 
+    var filePointer = ""
+
     private val _directoryList = MutableLiveData<MutableSet<DirectoryItem>>()
     val directoryList: LiveData<MutableSet<DirectoryItem>> = _directoryList
 
@@ -95,6 +97,7 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
 
     fun downloadFile(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
+            filePointer = path
             controllerNode.downloadFile(path)
         }
     }
