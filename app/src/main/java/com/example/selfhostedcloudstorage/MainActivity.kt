@@ -79,7 +79,12 @@ class MainActivity : AppCompatActivity() {
         nodeRepository.directoryPointer.observe(this) {navViewModel.setSelectedFolder(it) }
         navViewModel.selectedFolder.observe(this) {
             navAdapter.updateSelectedFolder(it)
-            supportActionBar?.title = it?.name ?: "HOME"
+
+            var title = it?.name ?: ""
+            if (title.isBlank())
+                title = "HOME"
+
+            supportActionBar?.title = title
         }
 
         nodeRepository.readNode("")
@@ -123,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         searchView.setOnCloseListener {
-            nodeRepository.undoSearch()
+            nodeRepository.undoSearch("") //TODO find path
             true
         }
 

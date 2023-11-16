@@ -9,7 +9,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.selfhostedcloudstorage.model.FileType
-import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerSocket
@@ -37,7 +36,6 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
 
     private val _directoryPointer = MutableLiveData<String>()
     val directoryPointer: LiveData<String> = _directoryPointer
-
     var filePointer = ""
 
     private val _directoryList = MutableLiveData<MutableSet<DirectoryItem>>()
@@ -56,15 +54,19 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     }
 
     fun onSearchQuery(query: String) {
-        val filteredList = fullFileList.filter { node ->
-            (node is NodeItem) && node.name.contains(query, ignoreCase = true)
-        }.toMutableList()
-        _displayedList.postValue(filteredList)
-        _directoryPointer.postValue(query)
+        CoroutineScope(Dispatchers.IO).launch {
+            controllerNode.sendSearchRequest(query)
+        }
     }
 
-    fun undoSearch() {
-        _displayedList.postValue(fullFileList.toMutableList())
+    fun undoSearch(path: String) {
+        var newPath = path
+        if (path.isBlank())
+            newPath = directoryPointer.value as String
+
+        CoroutineScope(Dispatchers.IO).launch {
+            controllerNode.requestNodes(newPath)
+        }
     }
 
     fun createNode(file: File) {

@@ -22,10 +22,13 @@ class NavViewModel : ViewModel() {
                 list.sortedWith(compareBy { it.parentFolder })
                     .map {
                         DirectoryItemViewModel(it)
-                        it.depth = it.path.count { it == '/' } - 1
+                        it.depth = it.path.count { it == '/' }// - 1
                     }
 
-                _itemList.postValue(list.map { DirectoryItemViewModel(it) })
+                // Add "HOME" item as the first item in the list
+                val homeItem = DirectoryItem("HOME", "")
+
+                _itemList.postValue(listOf(DirectoryItemViewModel(homeItem)) + list.map { DirectoryItemViewModel(it) })
             }
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading folders: ${e.message}")

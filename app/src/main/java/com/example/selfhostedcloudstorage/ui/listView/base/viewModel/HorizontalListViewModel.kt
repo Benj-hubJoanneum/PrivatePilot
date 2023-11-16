@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
-import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 
 class HorizontalListViewModel : ViewModel() {
     private val _itemList = MutableLiveData<List<DirectoryItem>>()
@@ -21,6 +20,7 @@ class HorizontalListViewModel : ViewModel() {
             path = path.substringBeforeLast('/')
         }
 
+        list.add(DirectoryItem("HOME", ""))
         _itemList.postValue(list.reversed())
     }
 }

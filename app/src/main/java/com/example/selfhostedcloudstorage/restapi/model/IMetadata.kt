@@ -1,7 +1,8 @@
 package com.example.selfhostedcloudstorage.restapi.model
 
 interface IMetadata {
-    val last_modified: Double
     val name: String
+    val path: String
     val size: Int
+    val last_modified: Double
 }

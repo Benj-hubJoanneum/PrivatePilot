@@ -32,25 +32,19 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     }
 
     fun requestNodes(url: String) {
-        //nodeRepository.pointer = url
         sendToServer("GET", url)
     }
 
     private fun readNodes(json: String) {
         try {
-
-            val pointer = nodeRepository.directoryPointer.value ?: ""
-
-
             val directoryList = mutableSetOf<DirectoryItem>()
             val nodeList: MutableSet<INode>
-
             val data = json.parseItemsFromResponse()
 
             directoryList.addAll(data.items.filter { it.type == "folder" }.map {
-                DirectoryItem(it.name, "$pointer/${it.name}")
+                DirectoryItem(it.name, it.path)
             })
-            nodeList = data.items.map { NodeItem(it.name, "$pointer/${it.name}") }.toMutableSet()
+            nodeList = data.items.map { NodeItem(it.name, it.path) }.toMutableSet()
 
             callback.onControllerSourceChanged(directoryList, nodeList)
         } catch (e: IOException) {
@@ -98,13 +92,17 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
                 intent.setDataAndType(uri, mimeType)
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-            try {
-                context!!.startActivity(intent)
-            } catch (e: Exception) {
-                e.printStackTrace()
+                try {
+                    context!!.startActivity(intent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }
-        }
+    }
+
+    fun sendSearchRequest(query: String) {
+        sendToServer("SEARCH", query)
     }
 
     private fun convertFileToJson(file: File): String {
