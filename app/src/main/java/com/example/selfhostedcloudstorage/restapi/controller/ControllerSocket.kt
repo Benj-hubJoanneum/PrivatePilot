@@ -42,9 +42,9 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
             val data = json.parseItemsFromResponse()
 
             directoryList.addAll(data.items.filter { it.type == "folder" }.map {
-                DirectoryItem(it.name, it.path)
+                DirectoryItem(it.name,"/${it.path}")
             })
-            nodeList = data.items.map { NodeItem(it.name, it.path) }.toMutableSet()
+            nodeList = data.items.map { NodeItem(it.name, "/${it.path}") }.toMutableSet()
 
             callback.onControllerSourceChanged(directoryList, nodeList)
         } catch (e: IOException) {
