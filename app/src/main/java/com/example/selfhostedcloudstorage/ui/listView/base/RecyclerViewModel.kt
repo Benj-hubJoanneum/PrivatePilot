@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.model.nodeItem.viewmodel
+package com.example.selfhostedcloudstorage.ui.listView.base
 
 import android.content.ContentValues
 import android.util.Log
@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
+import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.NodeItemViewModel
 
 class RecyclerViewModel : ViewModel() {
 

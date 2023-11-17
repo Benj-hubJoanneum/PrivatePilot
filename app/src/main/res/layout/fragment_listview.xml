@@ -24,20 +24,34 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <LinearLayout
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
                     android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="20sp" />
+
+                <LinearLayout
+                    android:id="@+id/list_Description_Box"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
+
                     <TextView
                         android:id="@+id/list_Description"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:text="@string/menu_gridview"
                         android:textAlignment="textEnd"
@@ -45,11 +59,12 @@
                         android:paddingEnd="16dp" />
 
                     <ImageView
-                        android:id="@+id/switchImage"
+                        android:id="@+id/list_Description_Image"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_grid" />
-
+                        android:src="@drawable/ic_grid"
+                        android:gravity="center_vertical" />
+                </LinearLayout>
                 </LinearLayout>
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/horizontalView"

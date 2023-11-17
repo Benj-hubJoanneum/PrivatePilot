@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.model.nodeItem.viewmodel
+package com.example.selfhostedcloudstorage.ui.listView.base.breadcrumbs
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.viewmodel.DirectoryBreadcrumbViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 
-class HorizontalListViewModel : ViewModel() {
+class BreadcrumbViewModel : ViewModel() {
     private val _itemList = MutableLiveData<List<DirectoryBreadcrumbViewModel>>()
     val itemList: LiveData<List<DirectoryBreadcrumbViewModel>> = _itemList
 

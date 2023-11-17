@@ -14,8 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
-import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.HorizontalListViewModel
-import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.RecyclerViewModel
+import com.example.selfhostedcloudstorage.ui.listView.base.breadcrumbs.BreadcrumbViewModel
 import com.example.selfhostedcloudstorage.ui.listView.base.breadcrumbs.BreadcrumbsAdapter
 
 abstract class BaseFragment : Fragment() {
@@ -33,7 +32,7 @@ abstract class BaseFragment : Fragment() {
         _binding = FragmentListviewBinding.inflate(inflater, container, false)
         val root: View = binding.root
         recyclerViewModel = ViewModelProvider(this)[RecyclerViewModel::class.java]
-        val horizontalListViewModel = ViewModelProvider(this)[HorizontalListViewModel::class.java]
+        val breadcrumbViewModel = ViewModelProvider(this)[BreadcrumbViewModel::class.java]
 
         // Initialize fileAdapter
         adapter = createAdapter()
@@ -49,20 +48,21 @@ abstract class BaseFragment : Fragment() {
         horizontalRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         horizontalRecyclerView.adapter = breadcrumbsAdapter
 
-        horizontalListViewModel.itemList.observe(viewLifecycleOwner) { breadcrumbsAdapter.updateList(it) }
-        nodeRepository.directoryPointer.observe(viewLifecycleOwner) { horizontalListViewModel.loadList(it) }
+        breadcrumbViewModel.itemList.observe(viewLifecycleOwner) { breadcrumbsAdapter.updateList(it) }
+        nodeRepository.directoryPointer.observe(viewLifecycleOwner) { breadcrumbViewModel.loadList(it) }
 
         val textView: TextView = binding.listDescription
         recyclerViewModel.text.observe(viewLifecycleOwner) { text ->
             textView.text = text
         }
 
-        val imageView: ImageView = binding.switchImage
+        val imageView: ImageView = binding.listDescriptionImage
         recyclerViewModel.imageResource.observe(viewLifecycleOwner) { resource ->
             imageView.setImageResource(resource)
         }
 
-        imageView.setOnClickListener {
+        val hitBox = binding.listDescriptionBox
+        hitBox.setOnClickListener {
             // Check the current fragment and navigate to the other fragment
             val currentFragmentId = requireActivity().findNavController(R.id.nav_host_fragment_content_main).currentDestination?.id
             val newFragmentId = if (currentFragmentId == R.id.nav_listview) {
