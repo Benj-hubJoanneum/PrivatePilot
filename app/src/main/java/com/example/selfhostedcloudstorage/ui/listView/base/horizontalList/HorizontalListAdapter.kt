@@ -6,12 +6,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
+import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryBreadcrumbViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
 class HorizontalListAdapter : RecyclerView.Adapter<HorizontalListAdapter.HorizontalViewHolder>() {
 
-    private var itemList: List<DirectoryItem> = listOf()
+    private var itemList: List<DirectoryBreadcrumbViewModel> = listOf()
     private var nodeRepository = NodeRepository.getInstance()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HorizontalViewHolder {
@@ -32,7 +33,7 @@ class HorizontalListAdapter : RecyclerView.Adapter<HorizontalListAdapter.Horizon
         return itemList.size
     }
 
-    fun updateList(newItemList: List<DirectoryItem>) {
+    fun updateList(newItemList: List<DirectoryBreadcrumbViewModel>) {
         itemList = newItemList
         notifyDataSetChanged()
     }
