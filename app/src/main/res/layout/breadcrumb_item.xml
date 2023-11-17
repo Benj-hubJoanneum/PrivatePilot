@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="8sp"
         android:orientation="horizontal">
 
         <ImageView
@@ -19,7 +20,8 @@
             android:scaleType="fitCenter"
             android:layout_marginEnd="2dp"
             android:src="@drawable/ic_arrow_right"
-            android:layout_gravity="center_vertical" />
+            android:layout_gravity="center_vertical"
+            android:visibility="@{viewModel.divider}" />
 
         <TextView
             android:id="@+id/horizontalItemText"
@@ -27,6 +29,7 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:padding="8dp"
-            android:text="@{viewModel.name}" />
+            android:text="@{viewModel.name}"
+            android:textColor="@{viewModel.color}" />
     </LinearLayout>
 </layout>

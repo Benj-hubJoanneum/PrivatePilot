@@ -1,5 +1,8 @@
 package com.example.selfhostedcloudstorage.ui.listView.base.breadcrumbs
 
+import android.graphics.Color
+import android.opengl.Visibility
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,7 +24,12 @@ class BreadcrumbViewModel : ViewModel() {
             path = path.substringBeforeLast('/')
         }
 
-        list.add(DirectoryBreadcrumbViewModel(DirectoryItem("HOME", "")))
+        val home = DirectoryBreadcrumbViewModel(DirectoryItem("HOME", ""))
+        home.divider = View.INVISIBLE
+
+        list.add(home)
+
+        list.first().color = Color.rgb(51, 171, 249)//(125,162,0,255)
         _itemList.postValue(list.reversed())
     }
 }
