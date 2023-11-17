@@ -1,24 +1,23 @@
-package com.example.selfhostedcloudstorage.ui.listView.base.horizontalList
+package com.example.selfhostedcloudstorage.ui.listView.base.breadcrumbs
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
-import com.example.selfhostedcloudstorage.databinding.HorizontalListItemBinding
-import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryBreadcrumbViewModel
+import com.example.selfhostedcloudstorage.databinding.BreadcrumbItemBinding
+import com.example.selfhostedcloudstorage.model.directoryItem.viewmodel.DirectoryBreadcrumbViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
-class HorizontalListAdapter : RecyclerView.Adapter<HorizontalListAdapter.HorizontalViewHolder>() {
+class BreadcrumbsAdapter : RecyclerView.Adapter<BreadcrumbsAdapter.HorizontalViewHolder>() {
 
     private var itemList: List<DirectoryBreadcrumbViewModel> = listOf()
     private var nodeRepository = NodeRepository.getInstance()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HorizontalViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = HorizontalListItemBinding.inflate(inflater, parent, false)
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.horizontal_list_item, parent, false)
+        val binding = BreadcrumbItemBinding.inflate(inflater, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.breadcrumb_item, parent, false)
         return HorizontalViewHolder(binding)
     }
 
@@ -40,7 +39,7 @@ class HorizontalListAdapter : RecyclerView.Adapter<HorizontalListAdapter.Horizon
         notifyDataSetChanged()
     }
 
-    inner class HorizontalViewHolder(private val binding: HorizontalListItemBinding) :
+    inner class HorizontalViewHolder(private val binding: BreadcrumbItemBinding) :
         RecyclerView.ViewHolder(binding.root), View.OnClickListener {
 
         init {

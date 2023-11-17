@@ -1,4 +1,4 @@
-package com.example.selfhostedcloudstorage.ui.navView
+package com.example.selfhostedcloudstorage.model.directoryItem.viewmodel
 
 import android.content.ContentValues
 import android.util.Log
@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
-import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
 
 class NavViewModel : ViewModel() {
 

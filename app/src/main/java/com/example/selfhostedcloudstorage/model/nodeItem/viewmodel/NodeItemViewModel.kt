@@ -1,8 +1,9 @@
-package com.example.selfhostedcloudstorage.model.nodeItem
+package com.example.selfhostedcloudstorage.model.nodeItem.viewmodel
 
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.ViewModel
 import com.example.selfhostedcloudstorage.model.FileType
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 
 class NodeItemViewModel(nodeItem: NodeItem) : ViewModel() {
     var name: String = if (nodeItem.name.contains('/')) {

@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.DirectoryNodeBinding
-import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItemViewModel
+import com.example.selfhostedcloudstorage.model.directoryItem.viewmodel.DirectoryItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
 class NavAdapter : RecyclerView.Adapter<NavAdapter.DirViewHolder>() {

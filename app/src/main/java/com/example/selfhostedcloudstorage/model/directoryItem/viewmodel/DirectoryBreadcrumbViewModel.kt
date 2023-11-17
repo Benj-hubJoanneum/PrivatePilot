@@ -1,7 +1,8 @@
-package com.example.selfhostedcloudstorage.model.directoryItem
+package com.example.selfhostedcloudstorage.model.directoryItem.viewmodel
 
 import android.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 
 class DirectoryBreadcrumbViewModel(directoryItem: DirectoryItem) : ViewModel() {
     var name: String = directoryItem.name

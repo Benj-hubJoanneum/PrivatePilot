@@ -13,7 +13,7 @@ import androidx.viewbinding.ViewBinding
 import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.model.FileType
-import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
+import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
 

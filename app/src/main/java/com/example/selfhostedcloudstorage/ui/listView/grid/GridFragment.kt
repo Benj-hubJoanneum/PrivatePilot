@@ -8,7 +8,6 @@ import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.ui.listView.base.BaseAdapter
 import com.example.selfhostedcloudstorage.ui.listView.base.BaseFragment
-import com.example.selfhostedcloudstorage.ui.listView.base.viewModel.RecyclerViewModel
 
 class GridFragment : BaseFragment() {
 

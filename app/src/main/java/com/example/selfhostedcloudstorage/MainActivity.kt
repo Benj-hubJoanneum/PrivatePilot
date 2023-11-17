@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
-import com.example.selfhostedcloudstorage.ui.navView.NavViewModel
+import com.example.selfhostedcloudstorage.model.directoryItem.viewmodel.NavViewModel
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {

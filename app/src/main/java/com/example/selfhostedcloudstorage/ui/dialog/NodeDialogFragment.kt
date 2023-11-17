@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.NodeDialogBinding
-import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
+import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 
 class NodeDialogFragment (

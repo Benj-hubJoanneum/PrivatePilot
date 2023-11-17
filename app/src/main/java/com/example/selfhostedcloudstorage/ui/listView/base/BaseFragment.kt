@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
-import com.example.selfhostedcloudstorage.ui.listView.base.viewModel.HorizontalListViewModel
-import com.example.selfhostedcloudstorage.ui.listView.base.viewModel.RecyclerViewModel
-import com.example.selfhostedcloudstorage.ui.listView.base.horizontalList.HorizontalListAdapter
+import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.HorizontalListViewModel
+import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.RecyclerViewModel
+import com.example.selfhostedcloudstorage.ui.listView.base.breadcrumbs.BreadcrumbsAdapter
 
 abstract class BaseFragment : Fragment() {
     private var _binding: FragmentListviewBinding? = null
@@ -45,11 +45,11 @@ abstract class BaseFragment : Fragment() {
 
         val horizontalRecyclerView: RecyclerView = binding.horizontalView
 
-        val horizontalListAdapter = HorizontalListAdapter()
+        val breadcrumbsAdapter = BreadcrumbsAdapter()
         horizontalRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        horizontalRecyclerView.adapter = horizontalListAdapter
+        horizontalRecyclerView.adapter = breadcrumbsAdapter
 
-        horizontalListViewModel.itemList.observe(viewLifecycleOwner) { horizontalListAdapter.updateList(it) }
+        horizontalListViewModel.itemList.observe(viewLifecycleOwner) { breadcrumbsAdapter.updateList(it) }
         nodeRepository.directoryPointer.observe(viewLifecycleOwner) { horizontalListViewModel.loadList(it) }
 
         val textView: TextView = binding.listDescription

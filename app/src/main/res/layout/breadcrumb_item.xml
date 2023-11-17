@@ -3,7 +3,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.selfhostedcloudstorage.model.directoryItem.DirectoryBreadcrumbViewModel" />
+            type="com.example.selfhostedcloudstorage.model.directoryItem.viewmodel.DirectoryBreadcrumbViewModel" />
     </data>
 
     <LinearLayout
