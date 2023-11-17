@@ -78,12 +78,14 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         }
     }
 
-    fun readNode(path: String) {
+    fun readNode(path: String? = directoryPointer.value) {
         CoroutineScope(Dispatchers.IO).launch {
-            controllerNode.requestNodes(path)
+            if (path != null) {
+                controllerNode.requestNodes(path)
 
             if(directoryPointer.value != path)
-                _directoryPointer.postValue(path)
+                _directoryPointer.postValue(path as String)
+            }
         }
     }
 

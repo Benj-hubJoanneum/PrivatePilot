@@ -16,7 +16,6 @@ import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
-import com.example.selfhostedcloudstorage.ui.listView.base.viewModel.RecyclerViewModel
 
 abstract class BaseAdapter(
     protected var itemList: List<NodeItemViewModel>,

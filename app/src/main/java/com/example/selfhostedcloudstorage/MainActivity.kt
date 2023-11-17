@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
 import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -49,7 +50,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.appBarMain.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
-
         binding.appBarMain.fab.setOnClickListener { view ->
             nodeRepository.launchFileSelection(openFileLauncher)
         }
@@ -73,10 +73,10 @@ class MainActivity : AppCompatActivity() {
         val navAdapter = NavAdapter()
         drawerRecyclerView.adapter = navAdapter
 
-        nodeRepository.directoryList.observe(this){ navViewModel.loadFolderList(it) }
+        nodeRepository.directoryList.observe(this) { navViewModel.loadFolderList(it) }
         navViewModel.itemList.observe(this) { navAdapter.updateList(it) }
 
-        nodeRepository.directoryPointer.observe(this) {navViewModel.setSelectedFolder(it) }
+        nodeRepository.directoryPointer.observe(this) { navViewModel.setSelectedFolder(it) }
         navViewModel.selectedFolder.observe(this) {
             navAdapter.updateSelectedFolder(it)
 
@@ -91,7 +91,6 @@ class MainActivity : AppCompatActivity() {
 
         handleIntent(intent)
     }
-
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -113,6 +112,19 @@ class MainActivity : AppCompatActivity() {
         val searchItem = menu.findItem(R.id.action_search)
         val searchView = searchItem.actionView as SearchView
 
+        // Set OnMenuItemClickListener for the search item
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(p0: MenuItem): Boolean {
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(p0: MenuItem): Boolean {
+                nodeRepository.readNode() // TODO find current path
+                return true
+            }
+        })
+
+        // Set OnQueryTextListener for handling search queries
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrEmpty()) {
@@ -128,7 +140,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         searchView.setOnCloseListener {
-            nodeRepository.undoSearch("") //TODO find path
+            nodeRepository.undoSearch("")
             true
         }
 
