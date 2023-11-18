@@ -56,7 +56,21 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     }
 
     fun updateNodes(urlSource: String, urlTarget: String) {
-        sendToServer("UPDATE", "$urlSource;$urlTarget")
+        val sourceFile = fileExist(urlSource, context!!)
+        val targetFile = fileExist(urlTarget, context!!, write = true)
+
+        if (sourceFile.exists()) {
+            val finalDestinationPath = if (sourceFile.isDirectory) {
+                File(targetFile, sourceFile.name)
+            } else {
+                targetFile
+            }
+
+            moveFileOrDirectory(sourceFile, finalDestinationPath)
+            sendToServer("UPDATE", "$urlSource;$urlTarget")
+        } else {
+            println("Source file or directory does not exist: $urlSource")
+        }
     }
 
     fun deleteNodes(url: String) {
@@ -105,6 +119,22 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
 
     fun sendSearchRequest(query: String) {
         sendToServer("FIND", query)
+    }
+
+    private fun moveFileOrDirectory(source: File, destination: File) {
+        try {
+            if (source.isDirectory) {
+                destination.mkdirs()
+                source.listFiles()?.forEach { file ->
+                    moveFileOrDirectory(file, File(destination, file.name))
+                }
+            } else {
+                source.copyTo(destination, true)
+                source.delete()
+            }
+        } catch (e: IOException) {
+            println("Error moving file/directory: ${e.message}")
+        }
     }
 
     private fun convertFileToJson(file: File): String {
