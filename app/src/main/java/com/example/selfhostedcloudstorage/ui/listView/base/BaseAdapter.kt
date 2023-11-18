@@ -26,6 +26,7 @@ abstract class BaseAdapter(
     private var selectedItems = nodeRepository.selectedItems
     protected var actionMode: ActionMode? = null
     private var cutItems = nodeRepository.cutItems
+    var hitBoxHitted = false
 
     override fun getItemCount(): Int {
         return itemList.size
@@ -35,16 +36,18 @@ abstract class BaseAdapter(
         val currentItem = itemList[position]
         holder.bind(currentItem)
 
-        // Set the item's selection state
-        val isSelected = selectedItems.contains(position)
-        holder.itemView.isSelected = isSelected
-        holder.itemView.setBackgroundColor(
-            if (isSelected) {
-                ContextCompat.getColor(holder.itemView.context, R.color.selectedItemBackground)
-            } else {
-                Color.TRANSPARENT
-            }
-        )
+        if (cutItems.size == 0) {
+            // Set the item's selection state
+            val isSelected = selectedItems.contains(position)
+            holder.itemView.isSelected = isSelected
+            holder.itemView.setBackgroundColor(
+                if (isSelected) {
+                    ContextCompat.getColor(holder.itemView.context, R.color.selectedItemBackground)
+                } else {
+                    Color.TRANSPARENT
+                }
+            )
+        }
     }
 
     fun updateList(newItemList: List<NodeItemViewModel>) {
@@ -87,7 +90,10 @@ abstract class BaseAdapter(
     override fun onDestroyActionMode(mode: ActionMode?) {
         actionMode = null
         mainActivity.invalidateOptionsMenu()
-        //selectedItems.clear() //to clear selection after pressing "back" BUTTON
+        if (!hitBoxHitted) { //to clear selection after pressing "back" BUTTON
+            selectedItems.clear()
+            cutItems.clear()
+        }
         notifyDataSetChanged()
     }
 
@@ -104,7 +110,6 @@ abstract class BaseAdapter(
             cutItems.add(item.path)
             //item.image?.alpha = 80
         }
-        selectedItems.clear()
         nodeRepository.cutItems = cutItems
         notifyDataSetChanged()
     }

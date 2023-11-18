@@ -63,6 +63,7 @@ abstract class BaseFragment : Fragment() {
 
         val hitBox = binding.listDescriptionBox
         hitBox.setOnClickListener {
+            adapter.hitBoxHitted = true
             // Check the current fragment and navigate to the other fragment
             val currentFragmentId = requireActivity().findNavController(R.id.nav_host_fragment_content_main).currentDestination?.id
             val newFragmentId = if (currentFragmentId == R.id.nav_listview) {
