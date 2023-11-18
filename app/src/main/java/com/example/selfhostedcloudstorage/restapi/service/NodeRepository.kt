@@ -105,15 +105,21 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         }
     }
 
-    fun updateNode(path: String) {
-
-    }
-
-    fun moveNodes(path: String) {
+    fun moveNodes(context: Context, path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             val pointer = directoryPointer.value ?: ""
-            controllerNode.updateNodes(path, pointer)
+            controllerNode.updateNodes(context, path, pointer)
             controllerNode.requestNodes(pointer)
+            directoryListRemoveEntry(path)
+        }
+    }
+
+    fun moveNodes(context: Context, path: String, newName: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val pointer = directoryPointer.value ?: ""
+            controllerNode.updateNodes(context, path, newName)
+            controllerNode.requestNodes(pointer)
+            directoryListRemoveEntry(path)
         }
     }
 
@@ -128,6 +134,12 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
             filePointer = path
             controllerNode.downloadFile(path)
         }
+    }
+
+    private fun directoryListRemoveEntry(path : String) {
+        val directoryList = _directoryList.value ?: mutableSetOf()
+        directoryList.removeIf{ it.path == path }
+        _directoryList.postValue(directoryList.toMutableSet())
     }
 
     private fun directoryListAddByParent(list : MutableSet<DirectoryItem>) {

@@ -55,9 +55,10 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    fun updateNodes(urlSource: String, urlTarget: String) {
-        val sourceFile = fileExist(urlSource, context!!)
-        val targetFile = fileExist(urlTarget, context!!, write = true)
+    fun updateNodes(context: Context, urlSource: String, urlTarget: String) {
+        this.context = context
+        val sourceFile = fileExist(urlSource, context)
+        val targetFile = fileExist(urlTarget, context, write = true)
 
         if (sourceFile.exists()) {
             val finalDestinationPath = if (sourceFile.isDirectory) {

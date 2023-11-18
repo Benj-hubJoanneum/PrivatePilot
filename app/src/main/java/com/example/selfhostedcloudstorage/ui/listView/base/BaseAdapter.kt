@@ -1,11 +1,15 @@
 package com.example.selfhostedcloudstorage.ui.listView.base
 
+import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ActionMode
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -17,6 +21,9 @@ import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 abstract class BaseAdapter(
     protected var itemList: List<NodeItemViewModel>,
@@ -103,6 +110,11 @@ abstract class BaseAdapter(
                 mode?.finish()
                 return true
             }
+            R.id.menu_edit -> {
+                showEditDialog()
+                mode?.finish()
+                return true
+            }
         }
         return false
     }
@@ -136,7 +148,38 @@ abstract class BaseAdapter(
 
     private fun moveSelectedItems() {
         cutItems.forEach{path ->
-            nodeRepository.moveNodes(path)
+            nodeRepository.moveNodes(mainActivity, path)
+        }
+    }
+
+    private fun editSelectedItem(newName: String) {
+        if (selectedItems.size == 1)
+            nodeRepository.moveNodes(mainActivity, itemList[selectedItems.first()].path, newName)
+    }
+
+    private fun showEditDialog() {
+        if (selectedItems.size == 1) {
+            val position = selectedItems.first()
+            val fileItem = itemList[position]
+
+            val builder = AlertDialog.Builder(mainActivity)
+            val inflater = mainActivity.layoutInflater
+            val dialogView = inflater.inflate(R.layout.edit_dialog, null)
+
+            val editText = dialogView.findViewById<TextInputEditText>(R.id.editText)
+            editText.setText(fileItem.name)
+
+            builder.setView(dialogView)
+                .setTitle("Edit Item Name")
+                .setPositiveButton("OK") { _, _ ->
+                    val newName = editText.text?.toString() ?: ""
+                    editSelectedItem(newName)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.cancel()
+                }
+
+            builder.create().show()
         }
     }
 
