@@ -13,7 +13,7 @@ class GridAdapter(
 ) : BaseAdapter(itemList, mainActivity) {
 
     init {
-        if (nodeRepository.selectedItems.size > 0) {
+        if (nodeRepository.selectedItems.size > 0 || nodeRepository.cutItems.size > 0) {
             actionMode = mainActivity.startActionMode(this@GridAdapter)
         }
     }

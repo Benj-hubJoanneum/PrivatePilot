@@ -28,10 +28,7 @@ class BreadcrumbViewModel : ViewModel() {
         home.divider = View.INVISIBLE
         list.add(home)
 
-        if (list.size == 1)
-            home.name = ""
-        else
-            list.first().color = Color.rgb(51, 171, 249)//(125,162,0,255)
+        list.first().color = Color.rgb(51, 171, 249)//(125,162,0,255)
 
         _itemList.postValue(list.reversed())
     }

@@ -55,9 +55,8 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    fun updateNodes(url: String) {
-        // TODO: check if a namechange of exchange the whole file
-        /*sendToServer("UPDATE", url)*/
+    fun updateNodes(urlSource: String, urlTarget: String) {
+        sendToServer("UPDATE", "$urlSource;$urlTarget")
     }
 
     fun deleteNodes(url: String) {

@@ -6,6 +6,7 @@ import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -44,18 +45,35 @@ abstract class BaseAdapter(
                 if (isSelected) {
                     ContextCompat.getColor(holder.itemView.context, R.color.selectedItemBackground)
                 } else {
+                    holder.setTextColor(1F)
                     Color.TRANSPARENT
                 }
             )
+        } else {
+            if (cutItems.contains(currentItem.path)) {
+                holder.setTextColor(0.5F)
+            } else{
+                holder.setTextColor(1F)
+                holder.itemView.setBackgroundColor(Color.TRANSPARENT)
+            }
         }
     }
 
     fun updateList(newItemList: List<NodeItemViewModel>) {
-        if (selectedItems.size < 1) {
+        if (selectedItems.size < 1 && cutItems.size < 1) {
             actionMode?.finish()
         }
         itemList = newItemList
         notifyDataSetChanged()
+    }
+
+    private fun findItemPositionByPath(path: String): Int {
+        for ((index, item) in itemList.withIndex()) {
+            if (item.path == path) {
+                return index
+            }
+        }
+        return -1
     }
 
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
@@ -76,6 +94,8 @@ abstract class BaseAdapter(
             }
             R.id.menu_cut -> {
                 cutSelectedItems()
+                item.isVisible = false
+                mode?.menu?.findItem(R.id.menu_move)?.isVisible = true
                 return true
             }
             R.id.menu_move -> {
@@ -108,15 +128,15 @@ abstract class BaseAdapter(
         selectedItems.forEach{position ->
             val item = itemList[position]
             cutItems.add(item.path)
-            //item.image?.alpha = 80
         }
+        selectedItems.clear()
         nodeRepository.cutItems = cutItems
         notifyDataSetChanged()
     }
 
     private fun moveSelectedItems() {
         cutItems.forEach{path ->
-            //nodeRepository.move()
+            nodeRepository.moveNodes(path)
         }
     }
 
@@ -127,10 +147,15 @@ abstract class BaseAdapter(
             binding.root.setOnLongClickListener(this)
         }
 
+        fun setTextColor(float: Float) {
+            binding.root.alpha = float
+        }
+
+
         private fun toggleSelection(position: Int) {
             if (selectedItems.contains(position)) {
                 selectedItems.remove(position)
-                if (selectedItems.size < 1) {
+                if (selectedItems.size < 1 && cutItems.size < 1) {
                     actionMode?.finish()
                 }
             } else {
@@ -149,7 +174,11 @@ abstract class BaseAdapter(
 
             if (selectedItems.size < 1) {
                 if (fileItem.type == FileType.FOLDER)
-                    nodeRepository.readNode(fileItem.path)
+                    if (!cutItems.contains(fileItem.path)/*fileItem.image?.alpha!! == 255*/) {
+                        nodeRepository.readNode(fileItem.path)
+                    } else {
+                        Toast.makeText(v.context, "Can't access 'cut' directories", Toast.LENGTH_SHORT).show()
+                    }
                 else {
                     NodeDialogFragment(mainActivity, fileItem).show(mainActivity.supportFragmentManager, "NodeDialog")
                 }

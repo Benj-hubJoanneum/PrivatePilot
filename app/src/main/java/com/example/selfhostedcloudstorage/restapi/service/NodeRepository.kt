@@ -109,6 +109,14 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
 
     }
 
+    fun moveNodes(path: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val pointer = directoryPointer.value ?: ""
+            controllerNode.updateNodes(path, pointer)
+            controllerNode.requestNodes(pointer)
+        }
+    }
+
     fun deleteNode(path: String) {
         CoroutineScope(Dispatchers.IO).launch {
             controllerNode.deleteNodes(path)
