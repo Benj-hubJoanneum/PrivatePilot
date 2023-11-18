@@ -1,10 +1,12 @@
 package com.example.selfhostedcloudstorage.restapi.service
 
+import android.app.Notification.Action
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.view.ActionMode
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -34,16 +36,25 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     private var controllerNode = ControllerSocket(this, this)
     var selectedFileUri: Uri? = null
 
-    private val _directoryPointer = MutableLiveData<String>()
-    val directoryPointer: LiveData<String> = _directoryPointer
-    var filePointer = ""
-
+    //all directories
     private val _directoryList = MutableLiveData<MutableSet<DirectoryItem>>()
     val directoryList: LiveData<MutableSet<DirectoryItem>> = _directoryList
 
+    //opened directory
+    private val _directoryPointer = MutableLiveData<String>()
+    val directoryPointer: LiveData<String> = _directoryPointer
+
+    //all files in opened directory
     private var fullFileList: MutableSet<INode> = mutableSetOf()
+
+    //actual shown nodes
     private val _displayedList = MutableLiveData<MutableList<INode>>()
     val displayedList: LiveData<MutableList<INode>> = _displayedList
+
+    //filemanagement
+    var filePointer = ""
+    var cutItems = mutableListOf<String>()
+    var selectedItems = mutableListOf<Int>()
 
     fun launchFileSelection(openFileLauncher: ActivityResultLauncher<Intent>) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -72,9 +83,14 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     fun createNode(file: File) {
         CoroutineScope(Dispatchers.IO).launch {
             val path = _directoryPointer.value ?: ""
+            controllerNode.createNodes(path, file)
+        }
+    }
 
-            if (path != "")
-                controllerNode.createNodes(path, file)
+    fun createNode(folder: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val path = _directoryPointer.value ?: ""
+            controllerNode.createNodes("$path/$folder")
         }
     }
 

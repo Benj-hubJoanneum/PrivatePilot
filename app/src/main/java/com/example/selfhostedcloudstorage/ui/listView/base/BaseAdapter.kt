@@ -22,9 +22,10 @@ abstract class BaseAdapter(
     protected val mainActivity: MainActivity
 ) : RecyclerView.Adapter<BaseAdapter.BaseViewHolder>(), ActionMode.Callback  {
 
-    protected var selectedItems = mutableListOf<Int>()
+    protected val nodeRepository = NodeRepository.getInstance()
+    private var selectedItems = nodeRepository.selectedItems
     protected var actionMode: ActionMode? = null
-    private val nodeRepository = NodeRepository.getInstance()
+    private var cutItems = nodeRepository.cutItems
 
     override fun getItemCount(): Int {
         return itemList.size
@@ -47,6 +48,9 @@ abstract class BaseAdapter(
     }
 
     fun updateList(newItemList: List<NodeItemViewModel>) {
+        if (selectedItems.size < 1) {
+            actionMode?.finish()
+        }
         itemList = newItemList
         notifyDataSetChanged()
     }
@@ -67,20 +71,48 @@ abstract class BaseAdapter(
                 mode?.finish()
                 return true
             }
+            R.id.menu_cut -> {
+                cutSelectedItems()
+                return true
+            }
+            R.id.menu_move -> {
+                moveSelectedItems()
+                mode?.finish()
+                return true
+            }
         }
         return false
     }
 
-    private fun deleteSelectedItems() { // updated to API ACCESS
+    override fun onDestroyActionMode(mode: ActionMode?) {
+        actionMode = null
+        mainActivity.invalidateOptionsMenu()
+        //selectedItems.clear() //to clear selection after pressing "back" BUTTON
+        notifyDataSetChanged()
+    }
+
+    private fun deleteSelectedItems() {
         selectedItems.forEach{position ->
             nodeRepository.deleteNode(itemList[position].path)
         }
         selectedItems.clear()
     }
 
-    override fun onDestroyActionMode(mode: ActionMode?) {
-        actionMode = null
-        mainActivity.invalidateOptionsMenu()
+    private fun cutSelectedItems() {
+        selectedItems.forEach{position ->
+            val item = itemList[position]
+            cutItems.add(item.path)
+            //item.image?.alpha = 80
+        }
+        selectedItems.clear()
+        nodeRepository.cutItems = cutItems
+        notifyDataSetChanged()
+    }
+
+    private fun moveSelectedItems() {
+        cutItems.forEach{path ->
+            //nodeRepository.move()
+        }
     }
 
     abstract inner class BaseViewHolder(private val binding: ViewBinding) :

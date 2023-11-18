@@ -8,6 +8,17 @@
         android:icon="@drawable/ic_edit"
         app:showAsAction="always" />
     <item
+        android:id="@+id/menu_cut"
+        android:title="cut"
+        android:icon="@drawable/ic_cut"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_move"
+        android:title="move"
+        android:icon="@drawable/ic_move"
+        app:showAsAction="always"
+        android:visible="false"/>
+    <item
         android:id="@+id/menu_delete"
         android:title="delete"
         android:icon="@drawable/ic_delete"
@@ -17,11 +28,6 @@
         android:title="send"
         android:icon="@drawable/ic_share"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/menu_move"
-        android:title="move"
-        android:icon="@drawable/ic_move"
-        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_open_with"
         android:title="open with"

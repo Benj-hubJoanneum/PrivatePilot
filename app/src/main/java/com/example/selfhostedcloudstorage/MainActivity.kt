@@ -5,12 +5,15 @@ import android.app.SearchManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.ActionMode
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.res.ResourcesCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
@@ -24,7 +27,10 @@ import com.example.selfhostedcloudstorage.databinding.ActivityMainBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.navView.NavAdapter
 import com.example.selfhostedcloudstorage.ui.navView.NavViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import com.leinardi.android.speeddial.SpeedDialActionItem
+import com.leinardi.android.speeddial.SpeedDialView
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,8 +56,33 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.appBarMain.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(true)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
-            nodeRepository.launchFileSelection(openFileLauncher)
+        val speedDialView: SpeedDialView = binding.appBarMain.fab
+        speedDialView.setMainFabClosedDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_upload, null))
+        speedDialView.setMainFabOpenedDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_close, null))
+
+        // Configure SpeedDialView
+        speedDialView.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_action1, R.drawable.ic_upload_file)
+                .setLabel("upload File")
+                .create()
+        )
+
+        speedDialView.addActionItem(
+            SpeedDialActionItem.Builder(R.id.fab_action2, R.drawable.ic_folder_upload)
+                .setLabel("create Folder")
+                .create()
+        )
+
+        speedDialView.setOnActionSelectedListener { actionItem ->
+            when (actionItem.id) {
+                R.id.fab_action1 -> {
+                    nodeRepository.launchFileSelection(openFileLauncher)
+                }
+                R.id.fab_action2 -> {
+                    showUploadDialog()
+                }
+            }
+            false
         }
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
@@ -119,7 +150,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onMenuItemActionCollapse(p0: MenuItem): Boolean {
-                nodeRepository.readNode() // TODO find current path
+                nodeRepository.readNode()
                 return true
             }
         })
@@ -149,6 +180,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun onSearchQuery(query: String) {
         nodeRepository.onSearchQuery(query)
+    }
+
+    private fun showUploadDialog() {
+        val builder = MaterialAlertDialogBuilder(this)
+        val inflater = LayoutInflater.from(this)
+        val view = inflater.inflate(R.layout.upload_dialog, null)
+
+        val editText = view.findViewById<EditText>(R.id.editText)
+        builder.setView(view)
+            .setPositiveButton("Upload") { dialog, which ->
+                val folderName = editText.text.toString()
+                nodeRepository.createNode(folderName)
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+            }
+            .show()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {

@@ -23,16 +23,20 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
     buildFeatures {
         viewBinding true
     }
+
     dataBinding {
         enabled = true
     }
@@ -45,8 +49,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.4'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.7.4'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.5'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.5'
 
     implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation 'junit:junit:4.13.2'
@@ -62,13 +66,13 @@ dependencies {
     // Coil
     implementation 'io.coil-kt:coil:2.4.0'
 
-    //search
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
-
     // okhttp
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
 
-
+    // Google Play services Cronet
     implementation("com.google.android.gms:play-services-cronet:18.0.1")
+
+    //speeddial
+    implementation "com.leinardi.android:speed-dial.compose:1.0.0-alpha04"
+    implementation "com.leinardi.android:speed-dial:3.3.0"
 }

@@ -24,11 +24,14 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     private val webSocketClient: WebSocketClient = WebSocketClient(this)
     private var context: Context? = null
 
-    fun createNodes(url: String, file: File) {
-        val filepath = "$url/${file.name}"
+    fun createNodes(url: String, file: File? = null) {
+        val filepath = "$url/${file?.name ?: ""}"
         sendToServer("POST", filepath) // send request to mkdir of filepath
-        val byteString = file.parseFileToBytes()
-        if (byteString != null) sendToServer(byteString) // send file to server
+
+        if (file != null) {
+            val byteString = file.parseFileToBytes()
+            if (byteString != null) sendToServer(byteString) // send file to server
+        }
     }
 
     fun requestNodes(url: String) {
@@ -102,7 +105,7 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     }
 
     fun sendSearchRequest(query: String) {
-        sendToServer("SEARCH", query)
+        sendToServer("FIND", query)
     }
 
     private fun convertFileToJson(file: File): String {

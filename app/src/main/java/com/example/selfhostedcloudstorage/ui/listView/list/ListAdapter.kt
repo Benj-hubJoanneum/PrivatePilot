@@ -12,6 +12,12 @@ class ListAdapter(
     mainActivity: MainActivity
 ) : BaseAdapter(itemList, mainActivity) {
 
+    init {
+        if (nodeRepository.selectedItems.size > 0) {
+            actionMode = mainActivity.startActionMode(this@ListAdapter)
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FileViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = FileNodeBinding.inflate(inflater, parent, false)

@@ -12,6 +12,12 @@ class GridAdapter(
     mainActivity: MainActivity
 ) : BaseAdapter(itemList, mainActivity) {
 
+    init {
+        if (nodeRepository.selectedItems.size > 0) {
+            actionMode = mainActivity.startActionMode(this@GridAdapter)
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = FileItemBinding.inflate(inflater, parent, false)
