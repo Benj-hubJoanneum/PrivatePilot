@@ -41,6 +41,9 @@ class NodeDialogFragment (
         binding.openFile.setOnClickListener{
             nodeRepository.openFile(node.path)
         }
+        binding.executePendingBindings()
+        if (node.bitmap != null)
+            binding.imageView.setImageBitmap(node.bitmap) // is not accepted yet
 
         switchButton()
         return root
