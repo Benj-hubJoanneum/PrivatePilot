@@ -56,6 +56,9 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     var cutItems = mutableListOf<String>()
     var selectedItems = mutableListOf<Int>()
 
+    //listener
+    private var downloadCallback: DownloadCallback? = null
+
     fun launchFileSelection(openFileLauncher: ActivityResultLauncher<Intent>) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -223,5 +226,17 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
 
     override fun onPreviewReceived(path: String, bitmap: Bitmap) {
         updateNodePreview(path, bitmap)
+    }
+
+    override fun onFileReceived() {
+        downloadCallback?.onDownloadFinished()
+    }
+
+    fun setDownloadCallback(callback: DownloadCallback) {
+        downloadCallback = callback
+    }
+
+    interface DownloadCallback {
+        fun onDownloadFinished()
     }
 }

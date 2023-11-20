@@ -14,7 +14,7 @@ import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 class NodeDialogFragment (
     private val context: Context,
     private val node: NodeItemViewModel
-) : DialogFragment() {
+) : DialogFragment(), NodeRepository.DownloadCallback {
     private var _binding: NodeDialogBinding? = null
     private val binding get() = _binding!!
 
@@ -45,6 +45,7 @@ class NodeDialogFragment (
         if (node.bitmap != null)
             binding.imageView.setImageBitmap(node.bitmap) // is not accepted yet
 
+        nodeRepository.setDownloadCallback(this)
         switchButton()
         return root
     }
@@ -66,13 +67,23 @@ class NodeDialogFragment (
         _binding = null
     }
 
-    fun switchButton(){
-        if (nodeRepository.fileExist(node.path, context)){
-            binding.download.visibility = View.GONE
-            binding.openFile.visibility = View.VISIBLE
-        } else {
-            binding.download.visibility = View.VISIBLE
-            binding.openFile.visibility = View.GONE
+    fun switchButton() {
+        // Use runOnUiThread to update UI elements on the main thread
+        activity?.runOnUiThread {
+            if (nodeRepository.fileExist(node.path, context)) {
+                binding.download.visibility = View.GONE
+                binding.openFile.visibility = View.VISIBLE
+            } else {
+                binding.download.visibility = View.VISIBLE
+                binding.openFile.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onDownloadFinished() {
+        // Use runOnUiThread to update UI elements on the main thread
+        activity?.runOnUiThread {
+            switchButton()
         }
     }
 }

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
@@ -204,6 +205,8 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
                     // write data to file
                     message.parseBytesToFile(outputFile)
 
+                    callback.onFileReceived()
+
                 }
             } catch (e: IOException) {
                 println("Error saving file: ${e.message}")
@@ -222,6 +225,11 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         conn.send(requestMessage)
     }
 
+    private fun showToast(message: String) {
+        if (context != null)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
     override fun onMessageReceived(message: String) {
         if (message.startsWith("base64;")) {
             readBase64(message.substring("base64;".length))
@@ -237,5 +245,6 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     interface ControllerCallback {
         fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList: MutableSet<INode>)
         fun onPreviewReceived(path : String, bitmap: Bitmap)
+        fun onFileReceived()
     }
 }
