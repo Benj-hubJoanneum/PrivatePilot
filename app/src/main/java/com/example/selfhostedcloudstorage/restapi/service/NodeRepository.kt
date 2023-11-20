@@ -1,18 +1,18 @@
 package com.example.selfhostedcloudstorage.restapi.service
 
-import android.app.Notification.Action
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.view.ActionMode
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
+import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -203,9 +203,25 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         return ""
     }
 
+    private fun updateNodePreview(path: String, bitmap: Bitmap) {
+        val nodeList = _displayedList.value ?: mutableListOf()
+
+        val nodeToUpdate = nodeList.find { it.path == path }
+
+        if (nodeToUpdate != null && nodeToUpdate is NodeItem) {
+            nodeToUpdate.bitmap = bitmap
+
+            _displayedList.postValue(nodeList)
+        }
+    }
+
     override fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList : MutableSet<INode>) {
         fullFileList = nodeList
         directoryListAddByParent(directoryList)
         displayListSorting()
+    }
+
+    override fun onPreviewReceived(path: String, bitmap: Bitmap) {
+        updateNodePreview(path, bitmap)
     }
 }

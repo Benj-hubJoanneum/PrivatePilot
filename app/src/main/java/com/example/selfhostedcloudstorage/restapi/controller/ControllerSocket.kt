@@ -2,6 +2,8 @@ package com.example.selfhostedcloudstorage.restapi.controller
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.example.selfhostedcloudstorage.model.INode
@@ -18,6 +20,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.util.Base64
 
 class ControllerSocket(private val nodeRepository: NodeRepository, private val callback: ControllerCallback) :
     WebSocketClient.WebSocketCallback {
@@ -53,6 +56,16 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         } catch (e: IOException) {
             println("Error parsing JSON: ${e.message}")
         }
+    }
+
+    private fun readBase64(base64String: String) {
+        val path = base64String.substringBeforeLast(';')
+        val base64 = base64String.substringAfterLast(';')
+
+        val decodedBytes = Base64.getDecoder().decode(base64)
+        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+
+        callback.onPreviewReceived("/$path", bitmap)
     }
 
     fun updateNodes(context: Context, urlSource: String, urlTarget: String) {
@@ -210,7 +223,11 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     }
 
     override fun onMessageReceived(message: String) {
-        readNodes(message)
+        if (message.startsWith("base64;")) {
+            readBase64(message.substring("base64;".length))
+        } else {
+            readNodes(message)
+        }
     }
 
     override fun onMessageReceived(message: ByteString) {
@@ -219,5 +236,6 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
 
     interface ControllerCallback {
         fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList: MutableSet<INode>)
+        fun onPreviewReceived(path : String, bitmap: Bitmap)
     }
 }

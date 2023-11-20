@@ -4,12 +4,9 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ActionMode
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -21,9 +18,7 @@ import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.NodeItemViewModel
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
 import com.example.selfhostedcloudstorage.ui.dialog.NodeDialogFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 
 abstract class BaseAdapter(
     protected var itemList: List<NodeItemViewModel>,
@@ -238,17 +233,7 @@ abstract class BaseAdapter(
             return false
         }
         protected fun getItemImage(fileItem: NodeItemViewModel): Drawable? {
-            return when (fileItem.type) {
-                FileType.PDF -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_pdf)
-                FileType.TXT -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_text)
-                FileType.XLSX -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_table)
-                FileType.JPG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
-                FileType.JPEG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
-                FileType.PNG -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_image)
-                FileType.DOC -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_document)
-                FileType.FOLDER -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_folder)
-                else -> AppCompatResources.getDrawable(itemView.context, R.drawable.ic_document)
-            }
+            return AppCompatResources.getDrawable(itemView.context, fileItem.drawable)
         }
 
         abstract fun bind(fileItem: NodeItemViewModel)

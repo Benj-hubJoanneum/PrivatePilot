@@ -28,7 +28,7 @@ class ListAdapter(
         BaseViewHolder(binding) {
 
         override fun bind(fileItem: NodeItemViewModel) {
-            fileItem.image = getItemImage(fileItem)
+            fileItem.icon = getItemImage(fileItem)
             binding.viewModel = fileItem
             binding.executePendingBindings()
         }

@@ -19,7 +19,7 @@
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:layout_margin="10dp"
-            android:src="@{viewModel.image}" />
+            android:src="@{viewModel.icon}" />
 
         <TextView
             android:id="@+id/descriptionTextView"

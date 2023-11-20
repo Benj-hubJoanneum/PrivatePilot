@@ -1,5 +1,6 @@
 package com.example.selfhostedcloudstorage.ui.listView.grid
 
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.selfhostedcloudstorage.MainActivity
@@ -28,9 +29,14 @@ class GridAdapter(
         BaseViewHolder(binding) {
 
         override fun bind(fileItem: NodeItemViewModel) {
-            fileItem.image = getItemImage(fileItem)
+            if (fileItem.icon == null)
+                fileItem.icon = getItemImage(fileItem)
+
             binding.viewModel = fileItem
             binding.executePendingBindings()
+
+            if (fileItem.bitmap != null)
+                binding.imageView.setImageBitmap(fileItem.bitmap)
         }
     }
 }

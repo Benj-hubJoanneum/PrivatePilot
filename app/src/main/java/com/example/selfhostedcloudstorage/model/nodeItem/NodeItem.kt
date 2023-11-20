@@ -1,8 +1,8 @@
 package com.example.selfhostedcloudstorage.model.nodeItem
 
+import android.graphics.Bitmap
 import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.INode
-import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.restapi.model.IMetadata
 
 data class NodeItem(
@@ -10,8 +10,9 @@ data class NodeItem(
     override var path: String = name,
     val description: String = "",
     var depth: Int = 0,
+    var bitmap: Bitmap? = null,
     override val last_modified: Double = 0.0,
-    override val size: Int = 0,
+    override val size: Int = 0
 ) : INode, IMetadata, Comparable<NodeItem> {
 
     override var type: FileType = setByType()

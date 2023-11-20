@@ -22,7 +22,8 @@ class RecyclerViewModel : ViewModel() {
 
     fun loadFileList(displayedList: MutableList<INode>) {
         try {
-            _itemList.postValue(displayedList.map { NodeItemViewModel(it as NodeItem) }) //probably can change the images to icons here
+            val newList = displayedList.map { NodeItemViewModel(it as NodeItem) }
+            _itemList.postValue(newList) //probably can change the images to icons here
         } catch (e: Exception) {
             Log.e(ContentValues.TAG, "Error loading files: ${e.message}")
         }
