@@ -5,6 +5,9 @@ import okhttp3.Request
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 class WebSocketClient(private val callback: WebSocketCallback) {
 
@@ -18,6 +21,8 @@ class WebSocketClient(private val callback: WebSocketCallback) {
         .build()
 
     private var webSocket: WebSocket? = null
+    private var reconnectionExecutor: ScheduledExecutorService? = null
+    private val reconnectionDelay: Long = 2 // seconds
 
     fun getConnection(): WebSocket {
         if (webSocket == null || webSocket?.send("Ping") == false) {
@@ -33,6 +38,9 @@ class WebSocketClient(private val callback: WebSocketCallback) {
                 super.onOpen(webSocket, response)
                 webSocket.send("WebSocket connection opened")
                 callback.onConnection()
+
+                // Cancel reconnection attempts if the connection is successfully opened
+                cancelReconnection()
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -51,21 +59,36 @@ class WebSocketClient(private val callback: WebSocketCallback) {
                 super.onClosed(webSocket, code, reason)
                 println("WebSocket connection closed. Code: $code, Reason: $reason")
                 callback.onConnectionCancel()
+
+                // Start reconnection mechanism
+                scheduleReconnection()
             }
 
-            override fun onFailure(
-                webSocket: WebSocket,
-                t: Throwable,
-                response: okhttp3.Response?
-            ) {
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
                 super.onFailure(webSocket, t, response)
                 println("WebSocket connection failed: ${t.message}")
                 callback.onConnectionFailure()
+
+                // Start reconnection mechanism
+                scheduleReconnection()
             }
         }
 
-        webSocket?.close(1000, "Recreating WebSocket")
         webSocket = client.newWebSocket(request, webSocketListener)
+    }
+
+    private fun cancelReconnection() {
+        reconnectionExecutor?.shutdown()
+    }
+
+    private fun scheduleReconnection() {
+        reconnectionExecutor?.shutdown()
+        reconnectionExecutor = Executors.newSingleThreadScheduledExecutor()
+
+        reconnectionExecutor?.scheduleAtFixedRate(
+            { createWebSocket() },
+            reconnectionDelay, reconnectionDelay, TimeUnit.SECONDS
+        )
     }
 
     interface WebSocketCallback {
@@ -75,6 +98,5 @@ class WebSocketClient(private val callback: WebSocketCallback) {
         fun onConnection()
         fun onConnectionCancel()
         fun onConnectionFailure()
-
     }
 }

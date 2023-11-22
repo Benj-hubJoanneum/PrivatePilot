@@ -222,8 +222,8 @@ class MainActivity : AppCompatActivity(), NodeRepository.ConnectionCallback, Nod
     private var isOverlayVisible = false
 
     override fun showLoadingOverlay() {
-       /* runOnUiThread {
-            if (loadingOverlay != null && !isOverlayVisible) {
+        runOnUiThread {
+            if (!isOverlayVisible) {
                 val overlayInflater = LayoutInflater.from(this)
                 loadingOverlay = overlayInflater.inflate(R.layout.loading_screen, null)
                 val rootView = findViewById<ViewGroup>(android.R.id.content)
@@ -234,25 +234,14 @@ class MainActivity : AppCompatActivity(), NodeRepository.ConnectionCallback, Nod
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                 )
 
-                loadingOverlay.setOnTouchListener { _, event ->
-                    when (event.action) {
-                        MotionEvent.ACTION_UP -> {
-                            // Handle touch release event, for example, execute nodeRepository.readNode()
-                            nodeRepository.readNode()
-                            true // Consume the touch event
-                        }
-                        else -> false
-                    }
-                }
-
                 isOverlayVisible = true
             }
-        }*/
+        }
     }
 
     fun hideLoadingOverlay() {
-        /*runOnUiThread {
-            if (loadingOverlay != null && isOverlayVisible) {
+        runOnUiThread {
+            if (isOverlayVisible) {
                 val rootView = findViewById<ViewGroup>(android.R.id.content)
                 rootView.removeView(loadingOverlay)
 
@@ -261,7 +250,7 @@ class MainActivity : AppCompatActivity(), NodeRepository.ConnectionCallback, Nod
 
                 isOverlayVisible = false
             }
-        }*/
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
