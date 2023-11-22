@@ -8,7 +8,12 @@ import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -32,7 +37,7 @@ import com.google.android.material.navigation.NavigationView
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NodeRepository.ConnectionCallback, NodeRepository.LoadingCallback  {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -50,6 +55,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        nodeRepository.setWebsocketCallback(this)
+        nodeRepository.setLoadingCallback(this)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -103,6 +111,10 @@ class MainActivity : AppCompatActivity() {
         val navViewModel = ViewModelProvider(this)[NavViewModel::class.java]
         val navAdapter = NavAdapter()
         drawerRecyclerView.adapter = navAdapter
+
+        nodeRepository.displayedList.observe(this) {
+            hideLoadingOverlay()
+        }
 
         nodeRepository.directoryList.observe(this) { navViewModel.loadFolderList(it) }
         navViewModel.itemList.observe(this) { navAdapter.updateList(it) }
@@ -198,6 +210,60 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showToast(message: String?) {
+        if (message != null) {
+            runOnUiThread {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private lateinit var loadingOverlay: View
+    private var isOverlayVisible = false
+
+    override fun showLoadingOverlay() {
+       /* runOnUiThread {
+            if (loadingOverlay != null && !isOverlayVisible) {
+                val overlayInflater = LayoutInflater.from(this)
+                loadingOverlay = overlayInflater.inflate(R.layout.loading_screen, null)
+                val rootView = findViewById<ViewGroup>(android.R.id.content)
+                rootView.addView(loadingOverlay)
+
+                window.setFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                )
+
+                loadingOverlay.setOnTouchListener { _, event ->
+                    when (event.action) {
+                        MotionEvent.ACTION_UP -> {
+                            // Handle touch release event, for example, execute nodeRepository.readNode()
+                            nodeRepository.readNode()
+                            true // Consume the touch event
+                        }
+                        else -> false
+                    }
+                }
+
+                isOverlayVisible = true
+            }
+        }*/
+    }
+
+    fun hideLoadingOverlay() {
+        /*runOnUiThread {
+            if (loadingOverlay != null && isOverlayVisible) {
+                val rootView = findViewById<ViewGroup>(android.R.id.content)
+                rootView.removeView(loadingOverlay)
+
+                // Re-enable user interactions
+                window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+
+                isOverlayVisible = false
+            }
+        }*/
+    }
+
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         return super.onPrepareOptionsMenu(menu)
     }
@@ -217,5 +283,18 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onConnection() {
+        showToast("Connected to Server")
+        hideLoadingOverlay()
+    }
+
+    override fun onConnectionCancel() {
+        showToast("Connection Closed.")
+    }
+
+    override fun onConnectionFailure() {
+        showToast("Connection failed. Please check your network.")
     }
 }

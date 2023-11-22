@@ -44,16 +44,19 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
 
     private fun readNodes(json: String) {
         try {
+            val pointer = json.substringBefore(';')
+            val nodes = json.substringAfter(';')
+
             val directoryList = mutableSetOf<DirectoryItem>()
             val nodeList: MutableSet<INode>
-            val data = json.parseItemsFromResponse()
+            val data = nodes.parseItemsFromResponse()
 
             directoryList.addAll(data.items.filter { it.type == "folder" }.map {
                 DirectoryItem(it.name,"/${it.path}")
             })
             nodeList = data.items.map { NodeItem(it.name, "/${it.path}") }.toMutableSet()
 
-            callback.onControllerSourceChanged(directoryList, nodeList)
+            callback.onControllerSourceChanged(pointer, directoryList, nodeList)
         } catch (e: IOException) {
             println("Error parsing JSON: ${e.message}")
         }
@@ -152,21 +155,6 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         }
     }
 
-    private fun convertFileToJson(file: File): String {
-        val gson = Gson()
-        return gson.toJson(file)
-    }
-
-    private fun convertInputStreamToString(inputStream: InputStream?): String {
-        val reader = BufferedReader(InputStreamReader(inputStream))
-        val stringBuilder = StringBuilder()
-        var line: String?
-        while (reader.readLine().also { line = it } != null) {
-            stringBuilder.append(line)
-        }
-        return stringBuilder.toString()
-    }
-
     private fun String.parseItemsFromResponse(): MetadataResponse {
         return try {
             Gson().fromJson(this, MetadataResponse::class.java)
@@ -242,9 +230,24 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
         saveFileToPhone(message)
     }
 
+    override fun onConnection() {
+        callback.onConnection()
+    }
+
+    override fun onConnectionCancel() {
+        callback.onConnectionCancel()
+    }
+
+    override fun onConnectionFailure() {
+        callback.onConnectionFailure()
+    }
+
     interface ControllerCallback {
-        fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList: MutableSet<INode>)
+        fun onControllerSourceChanged(pointer: String, directoryList : MutableSet<DirectoryItem>, nodeList: MutableSet<INode>)
         fun onPreviewReceived(path : String, bitmap: Bitmap)
         fun onFileReceived()
+        fun onConnection()
+        fun onConnectionCancel()
+        fun onConnectionFailure()
     }
 }

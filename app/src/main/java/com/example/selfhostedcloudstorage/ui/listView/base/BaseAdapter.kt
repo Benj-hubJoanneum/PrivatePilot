@@ -69,15 +69,6 @@ abstract class BaseAdapter(
         notifyDataSetChanged()
     }
 
-    private fun findItemPositionByPath(path: String): Int {
-        for ((index, item) in itemList.withIndex()) {
-            if (item.path == path) {
-                return index
-            }
-        }
-        return -1
-    }
-
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         mode?.menuInflater?.inflate(R.menu.action_mode_menu, menu)
         return true

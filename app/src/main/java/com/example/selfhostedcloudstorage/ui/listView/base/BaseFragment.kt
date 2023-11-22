@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.selfhostedcloudstorage.MainActivity
 import com.example.selfhostedcloudstorage.R
 import com.example.selfhostedcloudstorage.databinding.FragmentListviewBinding
 import com.example.selfhostedcloudstorage.restapi.service.NodeRepository
@@ -49,7 +50,9 @@ abstract class BaseFragment : Fragment() {
         horizontalRecyclerView.adapter = breadcrumbsAdapter
 
         breadcrumbViewModel.itemList.observe(viewLifecycleOwner) { breadcrumbsAdapter.updateList(it) }
-        nodeRepository.directoryPointer.observe(viewLifecycleOwner) { breadcrumbViewModel.loadList(it) }
+        nodeRepository.directoryPointer.observe(viewLifecycleOwner) {
+            breadcrumbViewModel.loadList(it)
+        }
 
         val textView: TextView = binding.listDescription
         recyclerViewModel.text.observe(viewLifecycleOwner) { text ->

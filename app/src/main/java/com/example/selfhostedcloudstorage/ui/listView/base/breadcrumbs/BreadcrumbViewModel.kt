@@ -14,8 +14,9 @@ class BreadcrumbViewModel : ViewModel() {
     val itemList: LiveData<List<DirectoryBreadcrumbViewModel>> = _itemList
 
     fun loadList(str: String){
+
         val list = mutableListOf<DirectoryBreadcrumbViewModel>()
-        var path = str
+        var path = str.replace("\\", "/")
         var name : String
 
         while (path.isNotEmpty()) {

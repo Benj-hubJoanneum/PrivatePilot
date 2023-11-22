@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.provider.OpenableColumns
 import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.LiveData
@@ -13,6 +15,7 @@ import com.example.selfhostedcloudstorage.model.FileType
 import com.example.selfhostedcloudstorage.model.INode
 import com.example.selfhostedcloudstorage.model.directoryItem.DirectoryItem
 import com.example.selfhostedcloudstorage.model.nodeItem.NodeItem
+import com.example.selfhostedcloudstorage.restapi.client.WebSocketClient
 import com.example.selfhostedcloudstorage.restapi.controller.ControllerSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +61,7 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
 
     //listener
     private var downloadCallback: DownloadCallback? = null
+    private var webSocketCallback: ConnectionCallback? = null
 
     fun launchFileSelection(openFileLauncher: ActivityResultLauncher<Intent>) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -100,10 +104,8 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
     fun readNode(path: String? = directoryPointer.value) {
         CoroutineScope(Dispatchers.IO).launch {
             if (path != null) {
+                showLoadingOverlay()
                 controllerNode.requestNodes(path)
-
-            if(directoryPointer.value != path)
-                _directoryPointer.postValue(path as String)
             }
         }
     }
@@ -218,10 +220,12 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         }
     }
 
-    override fun onControllerSourceChanged(directoryList : MutableSet<DirectoryItem>, nodeList : MutableSet<INode>) {
+    override fun onControllerSourceChanged(pointer : String, directoryList : MutableSet<DirectoryItem>, nodeList : MutableSet<INode>) {
         fullFileList = nodeList
         directoryListAddByParent(directoryList)
         displayListSorting()
+
+        _directoryPointer.postValue(pointer)
     }
 
     override fun onPreviewReceived(path: String, bitmap: Bitmap) {
@@ -232,11 +236,46 @@ class NodeRepository() : ControllerSocket.ControllerCallback {
         downloadCallback?.onDownloadFinished()
     }
 
+    override fun onConnection() {
+        webSocketCallback?.onConnection()
+    }
+
+    override fun onConnectionCancel() {
+        webSocketCallback?.onConnectionCancel()
+    }
+
+    override fun onConnectionFailure() {
+        webSocketCallback?.onConnectionFailure()
+    }
+
     fun setDownloadCallback(callback: DownloadCallback) {
         downloadCallback = callback
     }
 
+    fun setWebsocketCallback(callback: ConnectionCallback) {
+        webSocketCallback = callback
+    }
+
+    interface ConnectionCallback {
+        fun onConnection()
+        fun onConnectionCancel()
+        fun onConnectionFailure()
+    }
     interface DownloadCallback {
         fun onDownloadFinished()
+    }
+
+    private lateinit var loadingCallback: LoadingCallback
+
+    private fun showLoadingOverlay() {
+        loadingCallback.showLoadingOverlay()
+    }
+
+    fun setLoadingCallback(callback: LoadingCallback) {
+        loadingCallback = callback
+    }
+
+    interface LoadingCallback {
+        fun showLoadingOverlay()
     }
 }

@@ -32,6 +32,7 @@ class WebSocketClient(private val callback: WebSocketCallback) {
             override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
                 super.onOpen(webSocket, response)
                 webSocket.send("WebSocket connection opened")
+                callback.onConnection()
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
@@ -49,6 +50,7 @@ class WebSocketClient(private val callback: WebSocketCallback) {
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosed(webSocket, code, reason)
                 println("WebSocket connection closed. Code: $code, Reason: $reason")
+                callback.onConnectionCancel()
             }
 
             override fun onFailure(
@@ -58,6 +60,7 @@ class WebSocketClient(private val callback: WebSocketCallback) {
             ) {
                 super.onFailure(webSocket, t, response)
                 println("WebSocket connection failed: ${t.message}")
+                callback.onConnectionFailure()
             }
         }
 
@@ -68,6 +71,10 @@ class WebSocketClient(private val callback: WebSocketCallback) {
     interface WebSocketCallback {
         fun onMessageReceived(message: String)
         fun onMessageReceived(message: ByteString)
+
+        fun onConnection()
+        fun onConnectionCancel()
+        fun onConnectionFailure()
 
     }
 }
