@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.selfhostedcloudstorage.model.nodeItem.viewmodel.NodeItemViewModel" />
+            type="at.privatepilot.model.nodeItem.viewmodel.NodeItemViewModel" />
     </data>
 
     <LinearLayout

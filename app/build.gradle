@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.selfhostedcloudstorage'
+    namespace 'at.privatepilot'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.selfhostedcloudstorage"
+        applicationId "at.privatepilot"
         minSdk 26
         targetSdk 33
         versionCode 1
