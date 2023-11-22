@@ -11,10 +11,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
@@ -29,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.privatepilot.databinding.ActivityMainBinding
 import at.privatepilot.restapi.service.NodeRepository
+import at.privatepilot.ui.login.LoginViewModel
 import at.privatepilot.ui.navView.NavAdapter
 import at.privatepilot.ui.navView.NavViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -43,6 +46,7 @@ class MainActivity : AppCompatActivity(), NodeRepository.ConnectionCallback, Nod
     private var actionMode: ActionMode? = null
     private val nodeRepository = NodeRepository.getInstance()
 
+
     private val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -54,6 +58,7 @@ class MainActivity : AppCompatActivity(), NodeRepository.ConnectionCallback, Nod
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         nodeRepository.setWebsocketCallback(this)
         nodeRepository.setLoadingCallback(this)
 
