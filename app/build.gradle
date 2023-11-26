@@ -75,4 +75,8 @@ dependencies {
     //speeddial
     implementation "com.leinardi.android:speed-dial.compose:1.0.0-alpha04"
     implementation "com.leinardi.android:speed-dial:3.3.0"
+
+    // encryption
+    implementation "org.bouncycastle:bcprov-jdk15on:1.68"
+    implementation "javax.xml.bind:jaxb-api:2.3.1"
 }

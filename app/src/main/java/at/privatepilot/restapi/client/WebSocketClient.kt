@@ -1,53 +1,60 @@
 package at.privatepilot.restapi.client
 
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import kotlinx.coroutines.runBlocking
+import okhttp3.*
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
-import okio.IOException
-import java.nio.charset.StandardCharsets
-import java.security.KeyFactory
-import java.security.spec.X509EncodedKeySpec
-import java.util.Base64
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.security.KeyFactory
+import java.security.KeyPairGenerator
+import java.security.PublicKey
+import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
+import java.util.Base64
+import java.security.PrivateKey
+import java.security.spec.PKCS8EncodedKeySpec
 
 class WebSocketClient(private val callback: WebSocketCallback) {
 
     private val client = OkHttpClient()
-    private val url = "ws://10.0.0.245:8080" //localhost PC
-    //private val url = "ws://62.47.6.236:8080"
-    //private val url = "ws://172.19.11.57:8080"
-    //private val url = "ws://10.0.0.137:8080"
-
-
-    private val token = "your_token_here"
-    private val request = Request.Builder()
-        .url(url)
-        .addHeader("Authorization", token)
-        .build()
+    private val wsUrl = "ws://10.0.0.245:8080" // WebSocket URL
+    private val publicKeyUrl = "http://10.0.0.245:8081/public-key" // Public key URL
 
     private var webSocket: WebSocket? = null
     private var reconnectionExecutor: ScheduledExecutorService? = null
     private val reconnectionDelay: Long = 2 // seconds
 
-    fun getConnection(): WebSocket {
-        if (webSocket == null || webSocket?.send("Ping") == false) {
-            // If webSocket is null or sending a ping fails, recreate the connection
-            webSocket = createWebSocket()
+    private var token = "your_token_here"
+
+    private val cipher: Cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
+    private var serverPublicKey: PublicKey? = null
+    private var clientPublicKey: PublicKey? = null
+    private var clientPrivateKey: PrivateKey? = null
+
+
+    private fun getConnection(): WebSocket {
+        runBlocking {
+            demonstrateEncryptionDecryption()
+            serverPublicKey = fetchServerPublicKey()
+            if (webSocket == null || webSocket?.send("Ping") == false) {
+                webSocket = createWebSocket(encrypt(token))
+            }
         }
         return webSocket as WebSocket
     }
 
-    private fun createWebSocket(): WebSocket {
+    private fun createWebSocket(token: ByteArray): WebSocket {
+
         val webSocketListener = object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: okhttp3.Response) {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
                 super.onOpen(webSocket, response)
 
                 webSocket.send("WebSocket connection opened")
@@ -76,7 +83,7 @@ class WebSocketClient(private val callback: WebSocketCallback) {
                 scheduleReconnection()
             }
 
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 super.onFailure(webSocket, t, response)
                 println("WebSocket connection failed: ${t.message}")
                 callback.onConnectionFailure()
@@ -86,7 +93,83 @@ class WebSocketClient(private val callback: WebSocketCallback) {
             }
         }
 
+        val stringToken = Base64.getEncoder().encodeToString(token)
+
+        val request = Request.Builder()
+            .url(wsUrl)
+            .addHeader("Authorization", stringToken)
+            .build()
+
         return client.newWebSocket(request, webSocketListener)
+    }
+
+    private fun generateKeyPair() {
+        val keyPairGenerator = KeyPairGenerator.getInstance("RSA")
+        keyPairGenerator.initialize(2048) // Adjust the key size as needed
+        val keyPair = keyPairGenerator.generateKeyPair()
+        clientPublicKey = keyPair.public
+        clientPrivateKey = keyPair.private
+    }
+    fun demonstrateEncryptionDecryption() {
+
+        generateKeyPair()
+        try {
+            val originalMessage = "Hello World"
+
+            // Encrypt with the public key
+            val cipherEncrypt = Cipher.getInstance("RSA")
+            cipherEncrypt.init(Cipher.ENCRYPT_MODE, clientPublicKey)
+            val encryptedBytes = cipherEncrypt.doFinal(originalMessage.toByteArray())
+            val encryptedMessage = Base64.getEncoder().encodeToString(encryptedBytes)
+
+            println("Base64 Encoded: $encryptedMessage")
+
+            // Decrypt with the private key
+            val cipherDecrypt = Cipher.getInstance("RSA")
+            cipherDecrypt.init(Cipher.DECRYPT_MODE, clientPrivateKey)
+            val decryptedBytes = cipherDecrypt.doFinal(Base64.getDecoder().decode(encryptedMessage))
+            val decryptedMessage = String(decryptedBytes)
+
+            println("Decrypted Message: $decryptedMessage")
+
+        } catch (error: Exception) {
+            println("Error during encryption/decryption: $error")
+        }
+    }
+
+    private fun fetchServerPublicKey() : PublicKey? {
+        val publicKeyUrl = "http://10.0.0.245:8081/public-key"
+
+        try {
+            val url = URL(publicKeyUrl)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+
+            val reader = BufferedReader(InputStreamReader(connection.inputStream))
+            val publicKeyPEM = reader.readText()
+
+            val publicKeyPEMTRIMMED = publicKeyPEM
+                .trimIndent()
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replace("\n", "")
+
+            val publicKeyBytes = Base64.getDecoder().decode(publicKeyPEMTRIMMED)
+            val keyFactory = KeyFactory.getInstance("RSA")
+            val publicKeySpec = X509EncodedKeySpec(publicKeyBytes)
+
+            return keyFactory.generatePublic(publicKeySpec)
+        } catch (e: Exception) {
+            println("Error fetching or building public key: ${e.message}")
+        }
+        return null
+    }
+
+    private fun encrypt(plaintext: String) : ByteArray{
+
+        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
+
+        return cipher.doFinal(plaintext.toByteArray())
     }
 
     private fun cancelReconnection() {
@@ -98,45 +181,9 @@ class WebSocketClient(private val callback: WebSocketCallback) {
         reconnectionExecutor = Executors.newSingleThreadScheduledExecutor()
 
         reconnectionExecutor?.scheduleAtFixedRate(
-            { createWebSocket() },
+            { getConnection() },
             reconnectionDelay, reconnectionDelay, TimeUnit.SECONDS
         )
-    }
-
-    private fun fetchServerPublicKey(callback: PublicKeyCallback) {
-        val publicKeyUrl = "http://localhost:8081/public-key" // Replace with your server's public key URL
-
-        val request = Request.Builder()
-            .url(publicKeyUrl)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val publicKey = response.body?.string()
-                    callback.onPublicKeyReceived(publicKey ?: "")
-                } else {
-                    callback.onPublicKeyError("Failed to fetch public key. Code: ${response.code}")
-                }
-            }
-
-            override fun onFailure(call: Call, e: IOException) {
-                callback.onPublicKeyError("Error fetching public key: ${e.message}")
-            }
-        })
-    }
-
-    private fun encryptMessage(message: String, publicKey: String): String {
-        val cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding")
-        val keyFactory = KeyFactory.getInstance("RSA")
-
-        val keySpec = X509EncodedKeySpec(Base64.getDecoder().decode(publicKey))
-        val serverPublicKey = keyFactory.generatePublic(keySpec)
-
-        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
-
-        val encryptedBytes = cipher.doFinal(message.toByteArray(StandardCharsets.UTF_8))
-        return Base64.getEncoder().encodeToString(encryptedBytes)
     }
 
     fun sendToServer(requestMessage: String) {
@@ -155,7 +202,6 @@ class WebSocketClient(private val callback: WebSocketCallback) {
         fun onConnectionCancel()
         fun onConnectionFailure()
     }
-
     interface PublicKeyCallback {
         fun onPublicKeyReceived(publicKey: String)
         fun onPublicKeyError(error: String)
