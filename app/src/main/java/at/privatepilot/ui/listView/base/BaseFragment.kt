@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import at.privatepilot.R
 import at.privatepilot.databinding.FragmentListviewBinding
 import at.privatepilot.restapi.service.NodeRepository
-import at.privatepilot.ui.listView.base.breadcrumbs.BreadcrumbViewModel
-import at.privatepilot.ui.listView.base.breadcrumbs.BreadcrumbsAdapter
+import at.privatepilot.ui.listView.breadcrumbs.BreadcrumbViewModel
+import at.privatepilot.ui.listView.breadcrumbs.BreadcrumbsAdapter
 
 abstract class BaseFragment : Fragment() {
     private var _binding: FragmentListviewBinding? = null

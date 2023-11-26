@@ -200,19 +200,12 @@ class ControllerSocket(private val nodeRepository: NodeRepository, private val c
     }
 
     private fun sendToServer(prefix: String, content: String) {
-        val conn = webSocketClient.getConnection()
         val requestMessage = "$prefix:$content"
-        conn.send(requestMessage)
+        webSocketClient.sendToServer(requestMessage)
     }
 
     private fun sendToServer(requestMessage: ByteString) {
-        val conn = webSocketClient.getConnection()
-        conn.send(requestMessage)
-    }
-
-    private fun showToast(message: String) {
-        if (context != null)
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        webSocketClient.sendToServer(requestMessage)
     }
 
     override fun onMessageReceived(message: String) {

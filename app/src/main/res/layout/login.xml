@@ -37,8 +37,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:textColor="?attr/colorAccent"
         android:text="Register"
-        android:textColorLink="?attr/colorAccent"
         android:autoLink="web"
-        android:onClick="onRegisterClick" />
+        android:onClick="onRegisterClick"/>
 </LinearLayout>

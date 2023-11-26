@@ -12,7 +12,7 @@ class LoginViewModel : ViewModel() {
     fun attemptLogin(username: String, password: String) {
         // TODO: Replace this with actual network call for authentication
         // For simplicity, using hardcoded credentials for demonstration
-        if (username == "user" && password == "pass") {
+        if (username == "" && password == "") {
             // Successful login
             _loginResult.postValue(true)
         } else {

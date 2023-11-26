@@ -1,4 +1,4 @@
-package at.privatepilot.ui.listView.base.breadcrumbs
+package at.privatepilot.ui.listView.breadcrumbs
 
 import android.graphics.Color
 import android.view.View
