@@ -45,6 +45,30 @@ class WebSocketClient(private val callback: WebSocketCallback) {
 
     fun decrypt(encryptedMessage: String): String {
         try {
+            val encryptedChunks = encryptedMessage.split("*")
+
+            val decryptedChunks = mutableListOf<String>()
+
+            for (encryptedChunk in encryptedChunks) {
+                val encryptedBytes = Base64.getDecoder().decode(encryptedChunk)
+                val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
+                cipher.init(Cipher.DECRYPT_MODE, clientPrivateKey)
+
+                val decryptedBytes = cipher.doFinal(encryptedBytes)
+
+                decryptedChunks.add(String(decryptedBytes))
+            }
+
+            return decryptedChunks.joinToString("")
+        } catch (e: Exception) {
+            println("Error during decryption: ${e.message}")
+            // Handle the error appropriately
+        }
+        return ""
+    }
+
+    fun decrypt2(encryptedMessage: String): String {
+        try {
             val encryptedBytes = Base64.getDecoder().decode(encryptedMessage)
 
             val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
