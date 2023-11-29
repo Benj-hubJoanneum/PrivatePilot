@@ -1,5 +1,6 @@
 package at.privatepilot.restapi.client
 
+import at.privatepilot.restapi.client.Utils.CryptoUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
 import okhttp3.WebSocket
@@ -34,74 +35,13 @@ class WebSocketClient(private val callback: WebSocketCallback) {
 
     private var token = "your_token_here"
 
-    private val cipher: Cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
-    private var serverPublicKey: PublicKey? = null
-    private var clientPublicKey: PublicKey? = null
-    private var clientPrivateKey: PrivateKey? = null
+    private var crypt = CryptoUtils()
 
-    init {
-        generateKeyPair()
-    }
-
-    fun decrypt(encryptedMessage: String): String {
-        try {
-            val encryptedChunks = encryptedMessage.split("*")
-
-            val decryptedChunks = mutableListOf<String>()
-
-            for (encryptedChunk in encryptedChunks) {
-                val encryptedBytes = Base64.getDecoder().decode(encryptedChunk)
-                val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
-                cipher.init(Cipher.DECRYPT_MODE, clientPrivateKey)
-
-                val decryptedBytes = cipher.doFinal(encryptedBytes)
-
-                decryptedChunks.add(String(decryptedBytes))
-            }
-
-            return decryptedChunks.joinToString("")
-        } catch (e: Exception) {
-            println("Error during decryption: ${e.message}")
-            // Handle the error appropriately
-        }
-        return ""
-    }
-
-    fun decrypt2(encryptedMessage: String): String {
-        try {
-            val encryptedBytes = Base64.getDecoder().decode(encryptedMessage)
-
-            val cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
-
-            cipher.init(Cipher.DECRYPT_MODE, clientPrivateKey)
-
-            val decryptedBytes = cipher.doFinal(encryptedBytes)
-
-            return String(decryptedBytes)
-        } catch (e: Exception) {
-            println("Error during decryption: ${e.message}")
-            // Handle the error appropriately
-        }
-        return ""
-    }
-
-    private fun generateKeyPair() {
-        try {
-            val keyPairGenerator = KeyPairGenerator.getInstance("RSA")
-            keyPairGenerator.initialize(2048)
-            val keyPair = keyPairGenerator.generateKeyPair()
-
-            clientPublicKey = keyPair.public
-            clientPrivateKey = keyPair.private
-        } catch (e: Exception) {
-            println("Error generating key pair: ${e.message}")
-        }
-    }
     private fun getConnection(): WebSocket {
         runBlocking {
-            serverPublicKey = fetchServerPublicKey()
+            crypt.serverPublicKey = fetchServerPublicKey()
             if (webSocket == null || webSocket?.send("Ping") == false) {
-                webSocket = createWebSocket(encrypt(token))
+                webSocket = createWebSocket(crypt.encrypt(token))
             }
         }
         return webSocket as WebSocket
@@ -120,7 +60,7 @@ class WebSocketClient(private val callback: WebSocketCallback) {
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                callback.onMessageReceived(decrypt(text))
+                callback.onMessageReceived(crypt.decrypt(text))
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
@@ -151,7 +91,7 @@ class WebSocketClient(private val callback: WebSocketCallback) {
         val request = Request.Builder()
             .url(wsUrl)
             .addHeader("authorization", token)
-            .addHeader("publickey", Base64.getEncoder().encodeToString(clientPublicKey?.encoded))
+            .addHeader("publickey", Base64.getEncoder().encodeToString(crypt.clientPublicKey?.encoded))
             .build()
 
         return client.newWebSocket(request, webSocketListener)
@@ -185,18 +125,6 @@ class WebSocketClient(private val callback: WebSocketCallback) {
             println("Error fetching or building public key: ${e.message}")
         }
         return null
-    }
-
-    private fun encrypt(plaintext: String) : String{
-        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
-
-        val encryptedBytes = cipher.doFinal(plaintext.toByteArray())
-        return Base64.getEncoder().encodeToString(encryptedBytes)
-    }
-
-    private fun encrypt(plaintext: ByteArray): ByteArray {
-        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
-        return cipher.doFinal(plaintext)
     }
 
     private fun cancelReconnection() {
