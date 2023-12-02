@@ -1,4 +1,4 @@
-package at.privatepilot.restapi.client.Utils
+package at.privatepilot.restapi.client
 
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -15,13 +15,20 @@ import javax.crypto.Cipher
 class CryptoUtils {
 
     private val cipher: Cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
-    var serverPublicKey: PublicKey? = null
+    private var serverPublicKey: PublicKey? = null
     var clientPublicKey: PublicKey? = null
     private var clientPrivateKey: PrivateKey? = null
 
     init {
         generateKeyPair()
-        fetchServerPublicKey("http://10.0.0.245:8081/public-key")
+        serverPublicKey = fetchServerPublicKey("http://10.0.0.245:8081/public-key")
+    }
+
+    fun encrypt(plaintext: String) : String{
+        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
+
+        val encryptedBytes = cipher.doFinal(plaintext.toByteArray())
+        return Base64.getEncoder().encodeToString(encryptedBytes)
     }
 
     fun decrypt(encryptedMessage: String): String {
@@ -89,13 +96,6 @@ class CryptoUtils {
             println("Error fetching or building public key: ${e.message}")
         }
         return null
-    }
-
-    fun encrypt(plaintext: String) : String{
-        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
-
-        val encryptedBytes = cipher.doFinal(plaintext.toByteArray())
-        return Base64.getEncoder().encodeToString(encryptedBytes)
     }
 
     private fun encrypt(plaintext: ByteArray): ByteArray {

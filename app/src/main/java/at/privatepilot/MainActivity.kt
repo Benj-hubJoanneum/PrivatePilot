@@ -31,7 +31,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.privatepilot.databinding.ActivityMainBinding
 import at.privatepilot.restapi.service.NodeRepository
-import at.privatepilot.ui.login.LoginViewModel
 import at.privatepilot.ui.navView.NavAdapter
 import at.privatepilot.ui.navView.NavViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

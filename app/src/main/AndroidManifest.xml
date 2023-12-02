@@ -18,6 +18,7 @@
         tools:targetApi="31"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
+
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true"
@@ -28,10 +29,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.login.RegisterActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PrivatePilot.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.SEARCH" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.PrivatePilot.NoActionBar">
         </activity>
+
         <provider
             android:authorities="${applicationId}.provider"
             android:name="androidx.core.content.FileProvider"
@@ -41,6 +55,7 @@
             android:name="android.support.FILE_PROVIDER_PATHS"
             android:resource="@xml/provider_paths" />
         </provider>
+
     </application>
 
 </manifest>

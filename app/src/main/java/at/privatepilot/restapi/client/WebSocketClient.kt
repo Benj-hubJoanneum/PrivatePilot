@@ -1,6 +1,5 @@
 package at.privatepilot.restapi.client
 
-import at.privatepilot.restapi.client.Utils.CryptoUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
 import okhttp3.WebSocket
@@ -10,24 +9,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.charset.StandardCharsets
-import java.security.KeyFactory
-import java.security.KeyPairGenerator
-import java.security.PublicKey
-import java.security.spec.X509EncodedKeySpec
-import javax.crypto.Cipher
 import java.util.Base64
-import java.security.PrivateKey
 
 class WebSocketClient(private val callback: WebSocketCallback) {
 
     private val client = OkHttpClient()
     private val wsUrl = "ws://10.0.0.245:8080" // WebSocket URL
-    private val publicKeyUrl = "http://10.0.0.245:8081/public-key" // Public key URL
 
     private var webSocket: WebSocket? = null
     private var reconnectionExecutor: ScheduledExecutorService? = null
@@ -35,11 +22,11 @@ class WebSocketClient(private val callback: WebSocketCallback) {
 
     private var token = "your_token_here"
 
-    private var crypt = CryptoUtils()
+    private lateinit var crypt : CryptoUtils
 
     private fun getConnection(): WebSocket {
         runBlocking {
-            crypt.serverPublicKey = fetchServerPublicKey()
+            crypt = CryptoUtils()
             if (webSocket == null || webSocket?.send("Ping") == false) {
                 webSocket = createWebSocket(crypt.encrypt(token))
             }
@@ -60,7 +47,8 @@ class WebSocketClient(private val callback: WebSocketCallback) {
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 super.onMessage(webSocket, text)
-                callback.onMessageReceived(crypt.decrypt(text))
+                val decryptedMessage = crypt.decrypt(text)
+                callback.onMessageReceived(decryptedMessage)
             }
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
@@ -95,36 +83,6 @@ class WebSocketClient(private val callback: WebSocketCallback) {
             .build()
 
         return client.newWebSocket(request, webSocketListener)
-    }
-
-    private fun getPublicKey(publicKeyPEM: String): PublicKey {
-        try {
-            val keyBytes = Base64.getDecoder().decode(publicKeyPEM.trimIndent()
-                .replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----END PUBLIC KEY-----", "")
-                .replace("\n", ""))
-            val keySpec = X509EncodedKeySpec(keyBytes)
-            val keyFactory = KeyFactory.getInstance("RSA")
-            return keyFactory.generatePublic(keySpec)
-        } catch (e: Exception) {
-            throw RuntimeException("Error building public key: ${e.message}")
-        }
-    }
-
-    private fun fetchServerPublicKey(): PublicKey? {
-        try {
-            val url = URL(publicKeyUrl)
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-
-            val reader = BufferedReader(InputStreamReader(connection.inputStream))
-            val publicKeyPEM = reader.readText()
-
-            return getPublicKey(publicKeyPEM)
-        } catch (e: Exception) {
-            println("Error fetching or building public key: ${e.message}")
-        }
-        return null
     }
 
     private fun cancelReconnection() {
