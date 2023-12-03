@@ -1,20 +1,29 @@
 const { getClientKey, encrypt, decodeWithKey } = require('./encryption');
-const { BASE_DIRECTORY } = require('./http');
+const { validateUser } = require('./userAuth')
+
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 const WebSocket = require('ws');
 
+const BASE_DIRECTORY = 'C:/Users/lampr/Desktop/fileStorage';
+
 
 function startWebSocketServer(port) {
     const wss = new WebSocket.Server({ port: port });
+    console.log(`WebSocket Server is running on port ${port}`);
 
     wss.on('connection', async (ws, req) => {
+        const encodedName = req.headers['username'];
         const encodedToken = req.headers['authorization'];
-        const decodedToken = decodeWithKey(encodedToken);
-         await getClientKey(req.headers['publickey']);
+        const clientPublicKey = req.headers['publickey'];
 
-        if (!isValidToken(decodedToken)) {
+        await getClientKey(clientPublicKey);
+
+        const decodedName = decodeWithKey(encodedName);
+        const decodedToken = decodeWithKey(encodedToken);
+
+        if (!validateUser(decodedName, decodedToken)) {
             ws.terminate();
             return;
         }
@@ -43,10 +52,6 @@ function startWebSocketServer(port) {
 }
 
 let pointer = BASE_DIRECTORY;
-
-function isValidToken(token) {
-    return token == 'your_token_here';
-}
 
 async function sendToClient(ws, message) {
     const encryptedMessage = await encrypt(message);
@@ -230,7 +235,7 @@ async function sendFilePreviews(ws, items) {
         const fileExtension = path.extname(filePath).toLowerCase();
         let preview;
 
-        if (/\.(jpg|jpeg|png|gif)$/i.test(fileExtension)) {
+        if (/\.(jpg|png|gif)$/i.test(fileExtension)) {
             preview = await generateImagePreview(filePath);
         }
 

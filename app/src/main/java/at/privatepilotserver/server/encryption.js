@@ -48,7 +48,7 @@ async function getClientKey(key) {
 
 async function encrypt(originalMessage) {
     try {
-        const maxChunkSize = 100;
+        const maxChunkSize = 50;
         const encodedMessage = new TextEncoder().encode(originalMessage);
         const chunks = [];
 
@@ -89,7 +89,9 @@ function decodeWithKey(token) {
             oaepHash: 'sha256',
         }, buffer);
 
-        return decryptedBuffer.toString('utf-8');
+        let decodedMessage = decryptedBuffer.toString('utf-8');
+
+        return decodedMessage;
     } catch (error) {
         console.error('Decryption error:', error);
     }

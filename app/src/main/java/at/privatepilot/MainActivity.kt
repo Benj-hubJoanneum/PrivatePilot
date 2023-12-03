@@ -11,12 +11,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
@@ -44,7 +42,6 @@ class MainActivity : AppCompatActivity(), NodeRepository.ConnectionCallback, Nod
     private lateinit var binding: ActivityMainBinding
     private var actionMode: ActionMode? = null
     private val nodeRepository = NodeRepository.getInstance()
-
 
     private val openFileLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

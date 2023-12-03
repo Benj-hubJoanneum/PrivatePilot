@@ -10,12 +10,13 @@ import at.privatepilot.restapi.client.CredentialManager
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: LoginBinding
+    private var credentialManager = CredentialManager.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val decryptedUsername = CredentialManager.getStoredUsername(this@LoginActivity)
-        val decryptedPassword = CredentialManager.getStoredPassword(this@LoginActivity)
+        val decryptedUsername = credentialManager.getStoredUsername(this@LoginActivity)
+        val decryptedPassword = credentialManager.getStoredPassword(this@LoginActivity)
 
         binding = LoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -25,7 +26,7 @@ class LoginActivity : AppCompatActivity() {
             val enteredPassword = binding.passwordEditText.text.toString()
 
             if (enteredUsername == decryptedUsername && enteredPassword == decryptedPassword) {
-
+                credentialManager.updateCredentials(this@LoginActivity)
                 launchMainActivity()
             }
         }
@@ -34,9 +35,9 @@ class LoginActivity : AppCompatActivity() {
             launchRegisterActivity()
         }
 
-    if (decryptedUsername == null && decryptedPassword == null)
-        launchRegisterActivity()
-
+        if (decryptedUsername == null && decryptedPassword == null) {
+            launchRegisterActivity()
+        }
     }
 
     private fun launchMainActivity() {

@@ -15,7 +15,7 @@ import javax.crypto.Cipher
 class CryptoUtils {
 
     private val cipher: Cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding")
-    private var serverPublicKey: PublicKey? = null
+    var serverPublicKey: PublicKey? = null
     var clientPublicKey: PublicKey? = null
     private var clientPrivateKey: PrivateKey? = null
 
@@ -24,11 +24,16 @@ class CryptoUtils {
         serverPublicKey = fetchServerPublicKey("http://10.0.0.245:8081/public-key")
     }
 
-    fun encrypt(plaintext: String) : String{
-        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
+    fun encrypt(plaintext: String): String {
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey)
 
-        val encryptedBytes = cipher.doFinal(plaintext.toByteArray())
-        return Base64.getEncoder().encodeToString(encryptedBytes)
+            val encryptedBytes = cipher.doFinal(plaintext.toByteArray())
+            return Base64.getEncoder().encodeToString(encryptedBytes)
+        } catch (e: Exception) {
+            println("Error during encryption: ${e.message}")
+        }
+        return ""
     }
 
     fun decrypt(encryptedMessage: String): String {
@@ -82,7 +87,7 @@ class CryptoUtils {
         }
     }
 
-    private fun fetchServerPublicKey(publicKeyUrl: String): PublicKey? {
+    fun fetchServerPublicKey(publicKeyUrl: String): PublicKey? {
         try {
             val url = URL(publicKeyUrl)
             val connection = url.openConnection() as HttpURLConnection

@@ -3,12 +3,25 @@ package at.privatepilot.restapi.client
 import android.content.Context
 
 object CredentialManager {
+
+    var name = ""
+    var token = ""
+
     private const val PREFERENCES_NAME = "UserCredentials"
     private const val KEY_USERNAME = "username"
     private const val KEY_PASSWORD = "password"
     private const val KEY_SERVER_IP_WAN = "ws://10.0.0.245:8080"
     private const val KEY_SERVER_IP_LAN = "ws://10.0.0.245:8090"
+    private const val KEY_MAC = "ws://10.0.0.245:8090"
+    private const val KEY_SIM = "ws://10.0.0.245:8090"
 
+    @Volatile
+    private var instance: CredentialManager? = null
+
+    fun getInstance(): CredentialManager =
+        instance ?: synchronized(this) {
+            instance ?: CredentialManager.also { instance = it }
+        }
 
     fun saveUserCredentials(
         context: Context,
@@ -22,6 +35,15 @@ object CredentialManager {
         editor.putString(KEY_PASSWORD, password)
         editor.putString(KEY_SERVER_IP_LAN, serverAddress)
         editor.apply()
+    }
+
+    fun updateCredentials(context: Context){
+        name = getStoredUsername(context) ?: ""
+        token = StringBuilder()
+            .append(getStoredPassword(context))
+            .append(DeviceInfoUtil(context).getPhoneNumber())
+            .append(DeviceInfoUtil(context).getMacAddress())
+            .toString()
     }
 
     fun getStoredUsername(context: Context): String? {

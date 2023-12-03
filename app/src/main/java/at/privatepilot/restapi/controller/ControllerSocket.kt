@@ -20,7 +20,9 @@ import java.io.File
 import java.io.IOException
 import java.util.Base64
 
-class ControllerSocket(private val nodeRepository: NodeRepository, private val callback: ControllerCallback) :
+class ControllerSocket(
+    private val nodeRepository: NodeRepository,
+    private val callback: ControllerCallback) :
     WebSocketClient.WebSocketCallback {
     private val webSocketClient: WebSocketClient = WebSocketClient(this)
     private var context: Context? = null

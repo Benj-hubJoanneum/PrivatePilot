@@ -1,5 +1,5 @@
-const { startHttpServer } = require('./http');
+const { startLoginServer } = require('./http');
 const { startWebSocketServer } = require('./websocket');
 
-startHttpServer();
+startLoginServer(8081);
 startWebSocketServer(8080);
