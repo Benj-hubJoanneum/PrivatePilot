@@ -17,7 +17,9 @@
 
 10. Enter your Credentials and Login
 
-## File Location
+## Where are my files?
+- The Server has a physical copy of all shown files.
+- The client stores only files which were downloaded.
 - Use a file explorer (either Windows or directly on Phone)
-- Open "Internal Storage\Android\data\at.privatepilot\files\server_"
-- Attention: The Server has a physical copy of all shown files. The client stores only files which were downloaded.
+- Open "Internal Storage" \Android\data\at.privatepilot\files\server_
+ATTENTION: Some Android Operating Systems hide their App files.
